@@ -25,7 +25,7 @@ public class Application {
     return "登録しました：" + name + "（" + age + "歳）";
   }
 
-  // 🔸 生徒全員の一覧を表示
+  // Mapに保存されている全ての生徒の名前と年齢を一覧で返します
   @GetMapping("/students")
   public String getAllStudents() {
     if (students.isEmpty()) {
@@ -43,9 +43,9 @@ public class Application {
   @GetMapping("/student")
   public String getStudent(String name) {
     if (students.containsKey(name)) {
-      return name + "は" + students.get(name) + "歳です。";
+      return "生徒：" + name + " さんの年齢は " + students.get(name) + " 歳です。";
     } else {
-      return name + "は登録されていません。";
+      return "指定された生徒「" + name + "」は登録されていません。";
     }
   }
 
@@ -56,7 +56,7 @@ public class Application {
       students.put(name, age);
       return name + "の年齢を" + age + "歳に更新しました。";
     } else {
-      return name + "は登録されていません。";
+      return "指定された生徒「" + name + "」は登録されていません。";
 
     }
   }
@@ -67,7 +67,7 @@ public class Application {
       students.remove(name);
       return name + "を削除しました。";
     } else {
-      return name + "は登録されていません。";
+      return "指定された生徒「" + name + "」は登録されていません。";
     }
 
   }
