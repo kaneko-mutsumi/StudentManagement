@@ -28,4 +28,13 @@ public class StudentService {
         .filter(filter::isJavaCourse)
         .collect(Collectors.toList());
   }
+
+  public List<Student> searchStudentsByAge(int age){
+    int from = age;
+    int to = age + 9;
+
+    return repository.search().stream()
+        .filter(student -> student.getAge() >= from && student.getAge() <= to)
+        .collect(Collectors.toList());
+  }
 }
