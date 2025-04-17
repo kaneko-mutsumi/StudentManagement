@@ -12,6 +12,13 @@ java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(21)
 	}
+
+}
+
+configurations {
+	compileOnly{
+		extendsFrom annotationProcessor
+	}
 }
 
 repositories {
@@ -19,9 +26,23 @@ repositories {
 }
 
 dependencies {
+	// Spring Boot
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	// Thymeleaf
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
 	//Apache Commons Lang　便利機能
 	implementation "org.apache.commons:commons-lang3:3.14.0"
+	// Lombok
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	//MySQLドライバ
+	runtimeOnly 'mysql:mysql-connector-java:8.0.33'
+
+	//MyBatis
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
+
 
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
