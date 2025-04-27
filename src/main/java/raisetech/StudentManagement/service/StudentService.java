@@ -27,4 +27,11 @@ public class StudentService {
   public List<StudentsCourses> searchCoursesByCourseName(String courseName) {
     return repository.findCoursesByName(courseName);
   }
+
+  // コース名で絞り込む
+  public List<StudentsCourses> searchCoursesByCourseName(String courseName) {
+    return repository.searchStudentsCourses().stream()
+        .filter(course -> courseName.equals(course.getCourseName()))
+        .collect(Collectors.toList());
+  }
 }
