@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>受講生登録</title>
+</head>
+<body>
+<h1>受講生登録</h1>
+
+<form th:action="@{/registerStudent}" th:object="${studentDetail}" method="post">
+  <div>
+    <label for="name">名前:</label>
+    <input type="text" id="name" th:field="*{student.name}" required/>
+    <div th:if="${#fields.hasErrors('student.name')}" th:errors="*{student.name}" style="color:red"></div>
+  </div>
+
+  <div>
+    <label for="kanaName">カナ名:</label>
+    <input type="text" id="kanaName" th:field="*{student.kanaName}" required/>
+    <div th:if="${#fields.hasErrors('student.kanaName')}" th:errors="*{student.kanaName}" style="color:red"></div>
+  </div>
+
+  <div>
+    <label for="nickname">ニックネーム:</label>
+    <input type="text" id="nickname" th:field="*{student.nickname}"/>
+    <div th:if="${#fields.hasErrors('student.nickname')}" th:errors="*{student.nickname}" style="color:red"></div>
+  </div>
+
+  <div>
+    <label for="email">メールアドレス:</label>
+    <input type="text" id="email" th:field="*{student.email}" required/>
+    <div th:if="${#fields.hasErrors('student.email')}" th:errors="*{student.email}" style="color:red"></div>
+  </div>
+
+  <div>
+    <label for="area">地域:</label>
+    <input type="text" id="area" th:field="*{student.area}" required/>
+    <div th:if="${#fields.hasErrors('student.area')}" th:errors="*{student.area}" style="color:red"></div>
+  </div>
+
+  <div>
+    <label for="age">年齢:</label>
+    <input type="text" id="age" th:field="*{student.age}" required/>
+    <div th:if="${#fields.hasErrors('student.age')}" th:errors="*{student.age}" style="color:red"></div>
+  </div>
+
+  <div>
+    <label for="sex">性別:</label>
+    <select id="sex" th:field="*{student.sex}" required>
+      <option value="">選択してください</option>
+      <option value="男性">男性</option>
+      <option value="女性">女性</option>
+      <option value="その他">その他</option>
+      <option value="無回答">無回答</option>
+    </select>
+    <div th:if="${#fields.hasErrors('student.sex')}" th:errors="*{student.sex}" style="color:red"></div>
+  </div>
+
+  <div>
+    <input type="hidden" th:field="*{student.deleted}" value="false"/>
+  </div>
+
+  <h2>コース情報</h2>
+  <div>
+    <label for="courseName">コース名</label>
+    <div th:if="${#fields.hasErrors('course.courseName')}" th:errors="*{course.courseName}" style="color:red"></div>
+    <select id="courseName" th:field="*{course.courseName}" required>
+      <option value="">選択してください</option>
+      <option th:each="course : ${courseOptions}" th:value="${course}" th:text="${course}"></option>
+    </select>
+
+  </div>
+
+  <div>
+    <label for="startDate">開始日:</label>
+    <input type="date" id="startDate" th:field="*{course.startDate}" required />
+    <div th:if="${#fields.hasErrors('course.startDate')}" th:errors="*{course.startDate}" style="color:red"></div>
+  </div>
+
+  <div>
+    <label for="endDate">終了日:</label>
+    <input type="date" id="endDate" th:field="*{course.endDate}" required />
+    <div th:if="${#fields.hasErrors('course.endDate')}" th:errors="*{course.endDate}" style="color:red"></div>
+  </div>
+
+  <div>
+    <button type="submit">登録</button>
+  </div>
+</form>
+
+</body>
+</html>
