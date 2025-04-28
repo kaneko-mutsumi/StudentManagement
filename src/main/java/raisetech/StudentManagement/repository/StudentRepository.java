@@ -9,7 +9,6 @@ import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentsCourses;
 
 
-
 @Mapper
 public interface StudentRepository {
 
@@ -21,24 +20,24 @@ public interface StudentRepository {
 
   // 受講生のINSERT処理
   @Insert("""
-  INSERT INTO students(
-    name, kanaName, nickname, email, area,
-    age, sex, remark, deleted
-  ) VALUES (
-    #{name}, #{kanaName}, #{nickname}, #{email}, #{area},
-    #{age}, #{sex}, #{remark}, #{deleted}
-  )
-""")
+        INSERT INTO students(
+          name, kanaName, nickname, email, area,
+          age, sex, remark, deleted
+        ) VALUES (
+          #{name}, #{kanaName}, #{nickname}, #{email}, #{area},
+          #{age}, #{sex}, #{remark}, #{deleted}
+        )
+      """)
   @Options(useGeneratedKeys = true, keyProperty = "id")
   void insertStudent(Student student);
 
   // コース情報のINSERT処理
   @Insert("""
-      INSERT INTO students_courses(
-      student_id, course_name, start_date, end_date
-      )VALUES(
-      #{studentId}, #{courseName}, #{startDate}, #{endDate}
-      )
-  """)
+          INSERT INTO students_courses(
+          student_id, course_name, start_date, end_date
+          )VALUES(
+          #{studentId}, #{courseName}, #{startDate}, #{endDate}
+          )
+      """)
   void insertCourse(StudentsCourses course);
 }

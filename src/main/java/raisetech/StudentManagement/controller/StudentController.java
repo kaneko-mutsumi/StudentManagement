@@ -3,18 +3,16 @@ package raisetech.StudentManagement.controller;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.Banner.Mode;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import raisetech.StudentManagement.controller.converter.StudentConverter;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentsCourses;
-import raisetech.StudentManagement.domain.StudentDetail;
+import raisetech.StudentManagement.form.StudentForm;
 import raisetech.StudentManagement.service.StudentService;
 
 @Controller
@@ -44,9 +42,11 @@ public class StudentController {
     return "courseList";
   }
 
+
+  // 登録画面表示
   @GetMapping("/newStudent")
   public String newStudent(Model model) {
-    model.addAttribute("studentDetail", new StudentDetail());
+    model.addAttribute("studentForm", new StudentForm());
     model.addAttribute("courseOptions", List.of("Java入門", "Spring実践", "Webアプリ開発"));
     return "registerStudent";
   }
@@ -54,7 +54,7 @@ public class StudentController {
 
   @PostMapping("/registerStudent")
   public String registerStudent(
-      @Valid @ModelAttribute StudentDetail studentDetail,
+      @Valid @ModelAttribute("studentForm") StudentForm studentForm,
       BindingResult result,
       Model model
   ) {
@@ -64,13 +64,18 @@ public class StudentController {
     }
 
     // 登録処理
-    service.insertStudent(studentDetail.getStudent());
-    service.insertCourse(
-        studentDetail.getCourse(),
-        studentDetail.getStudent().getId()
+    Student studentEntity = studentForm.toStudentEntity();
+    service.insertStudent(studentEntity);
+
+    StudentsCourses courseEntity = studentForm.toCourseEntity(
+        Integer.parseInt(studentEntity.getId())
     );
+    service.insertCourse(courseEntity, studentEntity.getId());
 
     return "redirect:/studentList";
   }
+
+
+
 
 }
