@@ -9,6 +9,7 @@ import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentsCourses;
 
 
+
 @Mapper
 public interface StudentRepository {
 
@@ -40,4 +41,5 @@ public interface StudentRepository {
           )
       """)
   void insertCourse(StudentsCourses course);
+
 }

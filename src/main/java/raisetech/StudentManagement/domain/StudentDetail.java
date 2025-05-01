@@ -6,6 +6,7 @@ import lombok.Setter;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentsCourses;
 
+
 @Getter
 @Setter
 public class StudentDetail {
@@ -15,4 +16,5 @@ public class StudentDetail {
 
   @Valid
   private StudentsCourses course;
+
 }
