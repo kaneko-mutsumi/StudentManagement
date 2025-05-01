@@ -1,23 +1,45 @@
 package raisetech.StudentManagement.repository;
 
 import java.util.List;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
-import raisetech.StudentManagement.date.Student;
-import raisetech.StudentManagement.date.StudentsCourses;
+import raisetech.StudentManagement.data.Student;
+import raisetech.StudentManagement.data.StudentsCourses;
+
 
 
 @Mapper
 public interface StudentRepository {
 
+  @Select("SELECT * FROM students")
+  List<Student> search();
 
- // 年齢の範囲で生徒を検索
-  @Select("SELECT * FROM students WHERE age BETWEEN #{from} AND #{to}")
-  List<Student> findStudentsByAgeRange(@Param("from") int from, @Param("to") int to);
+  @Select("SELECT * FROM students_courses")
+  List<StudentsCourses> searchStudentsCourses();
 
-  // コース名で受講生を検索
-  @Select("SELECT * FROM students_courses WHERE course_name = #{courseName}")
-  List<StudentsCourses> findCoursesByName(@Param("courseName") String courseName);
+  // 受講生のINSERT処理
+  @Insert("""
+        INSERT INTO students(
+          name, kanaName, nickname, email, area,
+          age, sex, remark, deleted
+        ) VALUES (
+          #{name}, #{kanaName}, #{nickname}, #{email}, #{area},
+          #{age}, #{sex}, #{remark}, #{deleted}
+        )
+      """)
+  @Options(useGeneratedKeys = true, keyProperty = "id")
+  void insertStudent(Student student);
+
+  // コース情報のINSERT処理
+  @Insert("""
+          INSERT INTO students_courses(
+          student_id, course_name, start_date, end_date
+          )VALUES(
+          #{studentId}, #{courseName}, #{startDate}, #{endDate}
+          )
+      """)
+  void insertCourse(StudentsCourses course);
 
 }

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>コース一覧</title>
+</head>
+<body>
+<h1>コース一覧</h1>
+
+<table border="1">
+  <thead>
+  <tr>
+    <th>コースID</th>
+    <th>受講生ID</th>
+    <th>コース名</th>
+    <th>開始日</th>
+    <th>終了日</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="course : ${courseList}">
+    <td th:text="${course.id}"></td>
+    <td th:text="${course.studentId}"></td>
+    <td th:text="${course.courseName}"></td>
+    <td th:text="${course.startDate != null ? #temporals.format(course.startDate, 'yyyy-MM-dd') : ''}"></td>
+    <td th:text="${course.endDate != null ? #temporals.format(course.endDate, 'yyyy-MM-dd') : ''}"></td>
+  </tr>
+
+  </tbody>
+</table>
+
+</body>
+</html>

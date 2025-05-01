@@ -1,29 +1,82 @@
 package raisetech.StudentManagement.controller;
 
+import jakarta.validation.Valid;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import raisetech.StudentManagement.date.Student;
-import raisetech.StudentManagement.date.StudentsCourses;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import raisetech.StudentManagement.controller.converter.StudentConverter;
+import raisetech.StudentManagement.data.Student;
+import raisetech.StudentManagement.data.StudentsCourses;
+import raisetech.StudentManagement.form.StudentForm;
 import raisetech.StudentManagement.service.StudentService;
 
-@RestController
-@RequiredArgsConstructor
+@Controller
 public class StudentController {
 
   private final StudentService service;
+  private final StudentConverter converter;
 
-  // 年代で絞り込む（例：http://localhost:8080/students?age=30）
-  @GetMapping("/students")
-  public List<Student> getStudentsByAge(@RequestParam("age") int age){
-    return service.searchStudentsByAge(age);
+  @Autowired
+  public StudentController(StudentService service, StudentConverter converter) {
+    this.service = service;
+    this.converter = converter;
   }
 
-  // コース名で受講生を絞り込む（例：http://localhost:8080/courses?course=Javaコース）
-  @GetMapping("/courses")
-  public List<StudentsCourses> getStudentsCoursesByCourseName(@RequestParam("course") String courseName){
-    return service.searchCoursesByCourseName(courseName);
+  @GetMapping("/studentList")
+  public String getStudent(Model model) {
+    List<Student> students = service.searchStudentList();
+    List<StudentsCourses> courses = service.searchStudentsCourseList();
+    model.addAttribute("studentList", converter.convertStudentDetails(students, courses));
+    return "studentList";
   }
+
+  @GetMapping("/courseList")
+  public String getCourseList(Model model) {
+    List<StudentsCourses> coursesList = service.searchStudentsCourseList();
+    model.addAttribute("courseList", coursesList);
+    return "courseList";
+  }
+
+
+  // 登録画面表示
+  @GetMapping("/newStudent")
+  public String newStudent(Model model) {
+    model.addAttribute("studentForm", new StudentForm());
+    model.addAttribute("courseOptions", List.of("Java入門", "Spring実践", "Webアプリ開発"));
+    return "registerStudent";
+  }
+
+
+  @PostMapping("/registerStudent")
+  public String registerStudent(
+      @Valid @ModelAttribute("studentForm") StudentForm studentForm,
+      BindingResult result,
+      Model model
+  ) {
+    if (result.hasErrors()) {
+      model.addAttribute("courseOptions", List.of("Java入門", "Spring実践", "Webアプリ開発"));
+      return "registerStudent";
+    }
+
+    // 登録処理
+    Student studentEntity = studentForm.toStudentEntity();
+    service.insertStudent(studentEntity);
+
+    StudentsCourses courseEntity = studentForm.toCourseEntity(
+        Integer.parseInt(studentEntity.getId())
+    );
+    service.insertCourse(courseEntity, studentEntity.getId());
+
+    return "redirect:/studentList";
+  }
+
+
+
+
+
 }

@@ -21,13 +21,13 @@
   <tbody>
   <tr th:each="studentDetail : ${studentList}">
     <td th:text="${studentDetail.student.id}">1</td>
-    <td th:text="${studentDetail.student.fullname}">山田太郎</td>
-    <td th:text="${studentDetail.student.furigana}">ヤマダタロウ</td>
-    <td th:text="${studentDetail.student.nickName}">タロー</td>
+    <td th:text="${studentDetail.student.name}">山田太郎</td>
+    <td th:text="${studentDetail.student.kanaName}">ヤマダタロウ</td>
+    <td th:text="${studentDetail.student.nickname}">タロー</td>
     <td th:text="${studentDetail.student.email}">taro@example.com</td>
-    <td th:text="${studentDetail.student.municipality}">東京</td>
+    <td th:text="${studentDetail.student.area}">東京</td>
     <td th:text="${studentDetail.student.age}">20</td>
-    <td th:text="${studentDetail.student.gender}">男性</td>
+    <td th:text="${studentDetail.student.sex}">男性</td>
     <td th:text="${studentDetail.student.remark}">特になし</td>
   </tr>
   </tbody>

@@ -1,19 +1,20 @@
 package raisetech.StudentManagement.domain;
 
-import java.util.List;
+import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.Setter;
-import raisetech.StudentManagement.date.Student;
-import raisetech.StudentManagement.date.StudentsCourses;
+import raisetech.StudentManagement.data.Student;
+import raisetech.StudentManagement.data.StudentsCourses;
+
 
 @Getter
 @Setter
 public class StudentDetail {
 
+  @Valid
   private Student student;
-  private List<StudentsCourses> studentsCourses;
 
-  public void add(StudentDetail studentDetail) {
-    
-  }
+  @Valid
+  private StudentsCourses course;
+
 }
