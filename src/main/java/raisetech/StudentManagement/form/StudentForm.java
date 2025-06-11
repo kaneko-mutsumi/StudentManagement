@@ -64,12 +64,11 @@ public class StudentForm {
     return student;
   }
 
-  public StudentsCourses toCourseEntity(int studentId) {
+  public StudentsCourses toCourseEntity() {
     StudentsCourses course = new StudentsCourses();
-    course.setStudentId(studentId);
     course.setCourseName(this.courseName);
     course.setStartDate(this.startDate);
-    course.setEndDate(this.endDate);
+    course.setEndDate(this.startDate.plusYears(1));
     return course;
   }
 }
