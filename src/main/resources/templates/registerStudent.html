@@ -83,12 +83,6 @@
     <div th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}" style="color:red"></div>
   </div>
 
-  <!-- 終了日 -->
-  <div>
-    <label>終了日:</label><br>
-    <input type="date" th:field="*{endDate}" ><br>
-    <div th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}" style="color:red"></div>
-  </div>
 
   <div style="margin-top: 20px;">
     <button type="submit">登録</button>

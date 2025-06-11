@@ -9,11 +9,13 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import raisetech.StudentManagement.controller.converter.StudentConverter;
+import raisetech.StudentManagement.converter.StudentConverter;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentsCourses;
 import raisetech.StudentManagement.form.StudentForm;
 import raisetech.StudentManagement.service.StudentService;
+import raisetech.StudentManagement.domain.StudentDetail;
+
 
 @Controller
 public class StudentController {
@@ -65,17 +67,14 @@ public class StudentController {
 
     // 登録処理
     Student studentEntity = studentForm.toStudentEntity();
-    service.insertStudent(studentEntity);
+    StudentsCourses courseEntity = studentForm.toCourseEntity();
+    StudentDetail detail = new StudentDetail();
+    detail.setStudent(studentEntity);
+    detail.setStudentsCourse(courseEntity);
 
-    StudentsCourses courseEntity = studentForm.toCourseEntity(
-        Integer.parseInt(studentEntity.getId())
-    );
-    service.insertCourse(courseEntity, studentEntity.getId());
-
+    service.registerStudentAndCourse(detail);
     return "redirect:/studentList";
   }
-
-
 
 
 }

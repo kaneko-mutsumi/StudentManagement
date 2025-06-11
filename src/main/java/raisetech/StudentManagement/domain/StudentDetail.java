@@ -14,5 +14,5 @@ public class StudentDetail {
   private Student student;
 
   @Valid
-  private StudentsCourses course;
+  private StudentsCourses studentsCourse;
 }
