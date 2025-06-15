@@ -1,63 +1,95 @@
 package raisetech.StudentManagement.service;
 
-import java.time.temporal.ChronoUnit;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentsCourses;
-import raisetech.StudentManagement.repository.StudentRepository;
 import raisetech.StudentManagement.domain.StudentDetail;
-
+import raisetech.StudentManagement.repository.StudentRepository;
 
 @Service
 public class StudentService {
+
   private StudentRepository repository;
-  private static final Logger log = LoggerFactory.getLogger(StudentService.class);
-
-
 
   @Autowired
   public StudentService(StudentRepository repository) {
     this.repository = repository;
   }
 
-  public List<Student> searchStudentList() {
-    return repository.search();
+  // 学生一覧を検索
+  public List<StudentDetail> searchStudentList() {
+    List<Student> studentList = repository.search();
+    return studentList.stream()
+        .map(student -> {
+          StudentDetail studentDetail = new StudentDetail();
+          studentDetail.setStudent(student);
+
+          // 学生に対応するコース情報を取得
+          StudentsCourses course = repository.findCourseByStudentId(student.getId());
+          studentDetail.setStudentsCourse(course);
+
+          return studentDetail;
+        }).toList();
   }
 
-  public List<StudentsCourses> searchStudentsCourseList() {
-    return repository.searchStudentsCourses();
+  // IDで学生詳細を検索
+  public StudentDetail getStudentDetailById(int id) {
+    Student student = repository.findById(id);
+    if (student == null) {
+      return null;
+    }
 
+    StudentDetail studentDetail = new StudentDetail();
+    studentDetail.setStudent(student);
+
+    // 学生に対応するコース情報を取得
+    StudentsCourses course = repository.findCourseByStudentId(id);
+    studentDetail.setStudentsCourse(course);
+
+    return studentDetail;
   }
 
-  // 学生とコースを同時登録
+  // 学生情報を更新（コース情報の新規作成に対応）
   @Transactional
-  public void registerStudentAndCourse(StudentDetail studentDetail) {
-    try {
-      Student student = studentDetail.getStudent();
+  public void updateStudent(StudentDetail studentDetail) {
+    // 学生情報を更新
+    if (studentDetail.getStudent() != null) {
+      repository.updateStudent(studentDetail.getStudent());
+    }
+
+    // コース情報の処理
+    if (studentDetail.getStudentsCourse() != null) {
       StudentsCourses course = studentDetail.getStudentsCourse();
 
-      // 学生登録（ID自動採番）
-      repository.insertStudent(student);
-      log.info("学生を登録しました: {}", student.getId());
-
-      // 学生IDをコースにセット
-      course.setStudentId(student.getId());
-
-      if (course.getEndDate() == null && course.getStartDate() != null) {
-        course.setEndDate(course.getStartDate().plus(1, ChronoUnit.YEARS));
+      // 🆕 コースIDが0または null の場合は新規作成
+      if (course.getId() == 0 || course.getId() == null) {
+        System.out.println("コース情報を新規作成します: 学生ID = " + course.getStudentId());
+        repository.insertCourse(course);
+      } else {
+        System.out.println("コース情報を更新します: コースID = " + course.getId());
+        repository.updateCourse(course);
       }
-
-      repository.insertCourse(course);
-      log.info("コースを登録しました（受講生ID: {}）", course.getStudentId());
-
-    } catch (Exception e) {
-      log.error("学生とコースの登録中にエラーが発生しました", e);
-      throw new RuntimeException("登録に失敗しました。やり直してください。", e);
     }
+  }
+
+  // コース一覧を検索
+  public List<StudentsCourses> searchStudentsCourseList() {
+    return repository.searchStudentsCourses();
+  }
+
+  // 学生とコースを新規登録
+  @Transactional
+  public void registerStudentAndCourse(StudentDetail studentDetail) {
+    // 学生情報を登録
+    Student student = studentDetail.getStudent();
+    repository.insertStudent(student);
+
+    // 登録された学生のIDをコース情報に設定
+    StudentsCourses course = studentDetail.getStudentsCourse();
+    course.setStudentId(student.getId());
+    repository.insertCourse(course);
   }
 }
