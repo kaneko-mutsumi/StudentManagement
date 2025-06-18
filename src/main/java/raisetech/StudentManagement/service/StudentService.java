@@ -80,6 +80,7 @@ public class StudentService {
     return repository.searchStudentsCourses();
   }
 
+
   // 学生とコースを新規登録
   @Transactional
   public void registerStudentAndCourse(StudentDetail studentDetail) {

@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Update;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentsCourses;
 
+
 @Mapper
 public interface StudentRepository {
 
@@ -101,4 +102,5 @@ public interface StudentRepository {
       """)
   @Options(useGeneratedKeys = true, keyProperty = "id")  // 🆕 生成されたIDを取得
   void insertCourse(StudentsCourses course);
+
 }
