@@ -7,7 +7,6 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class StudentsCourses {
-
   private Integer id;
   private int studentId;
   private String courseName;
@@ -15,16 +14,5 @@ public class StudentsCourses {
   private LocalDate courseEndAt;
 
   public StudentsCourses() {
-  }
-
-  @Override
-  public String toString() {
-    return "StudentsCourses{" +
-        "id=" + id +
-        ", studentId=" + studentId +
-        ", courseName='" + courseName + '\'' +
-        ", courseStartAt=" + courseStartAt +
-        ", courseEndAt=" + courseEndAt +
-        '}';
   }
 }

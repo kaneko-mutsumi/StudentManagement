@@ -121,13 +121,7 @@
     <tbody>
     <tr th:each="studentDetail : ${studentList}">
       <td th:text="${studentDetail.student.id}">1</td>
-      <!-- 🆕 名前にリンクを追加（編集画面へ） -->
-      <td>
-        <a th:href="@{/student/{id}/edit(id=${studentDetail.student.id})}"
-           th:text="${studentDetail.student.name}"
-           class="name-link"
-           title="クリックして編集">山田太郎</a>
-      </td>
+      <td th:text="${studentDetail.student.name}">山田太郎</td>
       <td th:text="${studentDetail.student.kanaName}">ヤマダタロウ</td>
       <td th:text="${studentDetail.student.nickname}">タロー</td>
       <td th:text="${studentDetail.student.email}">taro@example.com</td>
