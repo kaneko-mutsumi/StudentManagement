@@ -13,6 +13,7 @@ java {
         languageVersion = JavaLanguageVersion.of(21)
     }
 
+
 }
 
 configurations {
@@ -49,6 +50,7 @@ dependencies {
 
     // Tomcat（WAR対応）
     providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+
 
     // テスト
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
