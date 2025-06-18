@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title>受講生登録 - 管理システム</title>
+  <title>受講生編集 - 管理システム</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -24,14 +24,14 @@
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       margin-bottom: 32px;
-      border-top: 4px solid #2196f3;
+      border-top: 4px solid #ff9800;
     }
 
     .header h1 {
       font-size: 2rem;
       font-weight: 500;
       margin-bottom: 8px;
-      color: #1976d2;
+      color: #ff9800;
     }
 
     .form-container {
@@ -97,8 +97,8 @@
 
     .form-input:focus, .form-select:focus, .form-textarea:focus {
       outline: none;
-      border-color: #2196f3;
-      box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+      border-color: #ff9800;
+      box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.2);
     }
 
     .form-textarea {
@@ -139,13 +139,21 @@
       border: 1px solid #bdbdbd;
     }
 
-    .btn-success {
-      background: #4caf50;
+    .btn-warning {
+      background: #ff9800;
       color: white;
     }
 
     .btn:hover {
       opacity: 0.8;
+    }
+
+    .student-id-display {
+      background: #f8f9fa;
+      padding: 12px 16px;
+      border-radius: 4px;
+      color: #6c757d;
+      font-weight: bold;
     }
 
     @media (max-width: 768px) {
@@ -158,15 +166,28 @@
 <body>
 <div class="container">
   <div class="header">
-    <h1>新規受講生登録</h1>
-    <div>受講生の基本情報とコース情報を入力してください</div>
+    <h1>受講生情報編集</h1>
+    <div>受講生の基本情報とコース情報を編集してください</div>
   </div>
 
   <div class="form-container">
-    <form th:action="@{/registerStudent}" method="post" th:object="${studentForm}">
+    <form th:action="@{/student/update}" method="post" th:object="${studentForm}">
+      <!-- 隠しフィールドでIDを送信 -->
+      <input type="hidden" th:field="*{id}">
+      <!-- コースIDも隠しフィールドで送信 -->
+      <input type="hidden" th:field="*{courseId}">
+
       <div class="form-content">
         <div class="form-section">
           <div class="section-title">基本情報</div>
+
+          <!-- 受講生IDを表示（編集不可） -->
+          <div class="form-grid single">
+            <div class="form-group">
+              <label class="form-label">受講生ID</label>
+              <div class="student-id-display" th:text="*{id}">1</div>
+            </div>
+          </div>
 
           <div class="form-grid">
             <div class="form-group">
@@ -238,7 +259,14 @@
 
             <div class="form-group">
               <label class="form-label">開始日<span class="required">*</span></label>
-              <input type="date" class="form-input" th:field="*{courseStartAt}" id="courseStartAt" onchange="calculateEndDate()" required>
+              <!-- 🔧 修正：日付表示の問題を解決 -->
+              <input type="date"
+                     class="form-input"
+                     name="courseStartAt"
+                     th:attr="value=${studentForm.courseStartAt}"
+                     id="courseStartAt"
+                     onchange="calculateEndDate()"
+                     required>
               <div th:if="${#fields.hasErrors('courseStartAt')}" th:errors="*{courseStartAt}" class="error-message"></div>
             </div>
           </div>
@@ -246,7 +274,13 @@
           <div class="form-grid single">
             <div class="form-group">
               <label class="form-label">終了日<span class="required">*</span></label>
-              <input type="date" class="form-input" th:field="*{courseEndAt}" id="courseEndAt" required>
+              <!-- 🔧 修正：日付表示の問題を解決 -->
+              <input type="date"
+                     class="form-input"
+                     name="courseEndAt"
+                     th:attr="value=${studentForm.courseEndAt}"
+                     id="courseEndAt"
+                     required>
               <div style="font-size: 12px; color: #757575; margin-top: 4px;">
                 コース選択と開始日から自動で計算されます
               </div>
@@ -269,8 +303,8 @@
       </div>
 
       <div class="form-actions">
-        <a href="/studentList" class="btn btn-secondary">キャンセル</a>
-        <button type="submit" class="btn btn-success">登録完了</button>
+        <a th:href="@{/student/{id}(id=*{id})}" class="btn btn-secondary">キャンセル</a>
+        <button type="submit" class="btn btn-warning">更新完了</button>
       </div>
     </form>
   </div>
