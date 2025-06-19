@@ -15,7 +15,7 @@ public interface StudentRepository {
       SELECT 
         id,
         name,
-        kanaName as kana_name,
+        kanaName,
         nickname,
         email,
         area,
@@ -32,7 +32,7 @@ public interface StudentRepository {
       SELECT 
         id,
         name,
-        kanaName as kana_name,
+        kanaName,
         nickname,
         email,
         area,
