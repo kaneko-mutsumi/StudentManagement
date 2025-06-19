@@ -16,15 +16,4 @@ public class StudentsCourses {
 
   public StudentsCourses() {
   }
-
-  @Override
-  public String toString() {
-    return "StudentsCourses{" +
-        "id=" + id +
-        ", studentId=" + studentId +
-        ", courseName='" + courseName + '\'' +
-        ", courseStartAt=" + courseStartAt +
-        ", courseEndAt=" + courseEndAt +
-        '}';
-  }
 }
