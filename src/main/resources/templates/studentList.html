@@ -2,9 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>学生一覧 - 学生管理システム</title>
   <style>
+
     body {
       font-family: Arial, sans-serif;
       margin: 20px;
@@ -53,13 +53,6 @@
       background-color: #f8f9fa;
     }
 
-    /* 🆕 名前のリンクスタイル */
-    .name-link {
-      color: #007bff;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
     .name-link:hover {
       text-decoration: underline;
       color: #0056b3;
@@ -92,21 +85,20 @@
     .btn:hover {
       opacity: 0.8;
     }
+
   </style>
 </head>
 <body>
 <div class="container">
-  <!-- ページヘッダー -->
   <div class="header">
     <h1>学生一覧</h1>
   </div>
 
-  <!-- 学生テーブル -->
   <table class="student-table">
     <thead>
     <tr>
       <th>ID</th>
-      <th>名前</th> <!-- 🆕 この列がリンクになる -->
+      <th>名前</th>
       <th>カナ名</th>
       <th>ニックネーム</th>
       <th>メールアドレス</th>
@@ -114,8 +106,6 @@
       <th>年齢</th>
       <th>性別</th>
       <th>コース名</th>
-      <th>開始日</th>
-      <th>終了日</th>
     </tr>
     </thead>
     <tbody>
@@ -123,20 +113,11 @@
       <td th:text="${studentDetail.student.id}">1</td>
       <td th:text="${studentDetail.student.name}">山田太郎</td>
       <td th:text="${studentDetail.student.kanaName}">ヤマダタロウ</td>
-      <td th:text="${studentDetail.student.nickname}">タロー</td>
-      <td th:text="${studentDetail.student.email}">taro@example.com</td>
-      <td th:text="${studentDetail.student.area}">東京都</td>
-      <td th:text="${studentDetail.student.age}">20</td>
-      <td th:text="${studentDetail.student.sex}">男性</td>
-      <!-- コース情報（nullチェック付き） -->
-      <td th:text="${studentDetail.studentsCourse != null ? studentDetail.studentsCourse.courseName : '未登録'}">Java入門</td>
-      <td th:text="${studentDetail.studentsCourse != null ? studentDetail.studentsCourse.courseStartAt : ''}">2024-04-01</td>
-      <td th:text="${studentDetail.studentsCourse != null ? studentDetail.studentsCourse.courseEndAt : ''}">2024-07-01</td>
+      <!-- 以下省略 -->
     </tr>
     </tbody>
   </table>
 
-  <!-- ボタングループ -->
   <div class="button-group">
     <a href="/newStudent" class="btn btn-primary">新規学生登録</a>
     <a href="/courseList" class="btn btn-secondary">コース一覧</a>
