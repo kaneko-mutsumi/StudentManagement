@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentsCourses;
 
@@ -71,4 +72,33 @@ public interface StudentRepository {
           )
       """)
   void insertCourse(StudentsCourses course);
+
+  /**
+   * 学生情報を更新する
+   */
+  @Update("""
+      UPDATE students 
+      SET name = #{name}, 
+          kanaName = #{kanaName},
+          nickname = #{nickname},
+          email = #{email},
+          area = #{area},
+          age = #{age},
+          sex = #{sex},
+          remark = #{remark}
+      WHERE id = #{id}
+      """)
+  void updateStudent(Student student);
+
+  /**
+   * コース情報を更新する
+   */
+  @Update("""
+      UPDATE students_courses 
+      SET course_name = #{courseName},
+          course_start_at = #{courseStartAt},
+          course_end_at = #{courseEndAt}
+      WHERE student_id = #{studentId}
+      """)
+  void updateCourse(StudentsCourses course);
 }
