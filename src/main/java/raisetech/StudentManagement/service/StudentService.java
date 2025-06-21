@@ -57,4 +57,13 @@ public class StudentService {
     course.setStudentId(student.getId());
     repository.insertCourse(course);
   }
+
+  /**
+   * 学生情報とコース情報を更新する
+   */
+  @Transactional
+  public void updateStudent(StudentDetail studentDetail) {
+    repository.updateStudent(studentDetail.getStudent());
+    repository.updateCourse(studentDetail.getStudentsCourse());
+  }
 }

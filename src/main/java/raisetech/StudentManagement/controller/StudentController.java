@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentsCourses;
@@ -65,6 +66,49 @@ public class StudentController {
     detail.setStudentsCourse(courseEntity);
 
     service.registerStudentAndCourse(detail);
+    return "redirect:/studentList";
+  }
+
+  /**
+   * 編集画面を表示する
+   */
+  @GetMapping("/student/{id}/edit")
+  public String showEditForm(@PathVariable int id, Model model) {
+    StudentDetail studentDetail = service.getStudentDetailById(id);
+    if (studentDetail == null) {
+      return "redirect:/studentList";
+    }
+
+    // 既存データをフォームに変換
+    StudentForm studentForm = StudentForm.fromStudentDetail(studentDetail);
+
+    // 画面に渡すデータを設定
+    model.addAttribute("studentForm", studentForm);
+    model.addAttribute("courseOptions",
+        List.of("Java入門", "Spring実践", "Webアプリ開発"));
+
+    // 編集画面を表示
+    return "edit";
+  }
+
+  /**
+   * 更新処理を実行する
+   */
+  @PostMapping("/student/update")
+  public String updateStudent(
+      @Valid @ModelAttribute StudentForm studentForm,
+      BindingResult result,
+      Model model) {
+
+    // 入力チェックでエラーがある場合は編集画面に戻る
+    if (result.hasErrors()) {
+      model.addAttribute("courseOptions",
+          List.of("Java入門", "Spring実践", "Webアプリ開発"));
+      return "edit";
+    }
+
+    StudentDetail studentDetail = studentForm.toStudentDetail();
+    service.updateStudent(studentDetail);
     return "redirect:/studentList";
   }
 
