@@ -4,6 +4,10 @@
   <title>受講生登録 - 管理システム</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
       background: #fafafa;
@@ -115,7 +119,7 @@
     .form-actions {
       display: flex;
       gap: 12px;
-      justify-content: flex-end;
+      justify-content: center;
       padding: 24px 32px;
       background: #f5f5f5;
       border-top: 1px solid #e0e0e0;
@@ -131,6 +135,8 @@
       transition: all 0.2s ease;
       text-decoration: none;
       display: inline-block;
+      min-width: 120px;
+      text-align: center;
     }
 
     .btn-secondary {
@@ -142,17 +148,124 @@
     .btn-success {
       background: #4caf50;
       color: white;
+      border: 1px solid #4caf50;
     }
 
     .btn:hover {
       opacity: 0.8;
+      transform: translateY(-1px);
     }
 
+    .note {
+      font-size: 12px;
+      color: #757575;
+      margin-top: 4px;
+    }
+
+    /* レスポンシブ対応 */
     @media (max-width: 768px) {
+      .container {
+        margin: 10px;
+        padding: 10px;
+      }
+
       .form-grid {
         grid-template-columns: 1fr;
       }
+
+      .header {
+        padding: 20px;
+      }
+
+      .header h1 {
+        font-size: 1.5rem;
+      }
+
+      .form-content {
+        padding: 20px;
+      }
+
+      .form-actions {
+        padding: 20px;
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        margin-bottom: 10px;
+      }
     }
+
+    @media (max-width: 480px) {
+      body {
+        margin: 10px;
+      }
+
+      .header h1 {
+        font-size: 1.3rem;
+      }
+
+      .section-title {
+        font-size: 1.1rem;
+      }
+
+      .form-content {
+        padding: 15px;
+      }
+
+      .form-actions {
+        padding: 15px;
+      }
+    }
+
+    /* 高解像度ディスプレイ対応 */
+    @media (min-width: 1200px) {
+      .container {
+        max-width: 1000px;
+      }
+
+      .form-grid {
+        gap: 30px;
+      }
+
+      .form-content {
+        padding: 40px;
+      }
+    }
+
+    /* 印刷対応 */
+    @media print {
+      body {
+        background: white;
+        margin: 0;
+      }
+
+      .header, .form-container {
+        box-shadow: none;
+        border: 1px solid #ddd;
+      }
+
+      .form-actions {
+        display: none;
+      }
+    }
+
+    /* アクセシビリティ対応 */
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-width: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .btn {
+        transition: none;
+      }
+
+      .btn:hover {
+        transform: none;
+      }
+    }
+
+
   </style>
 </head>
 <body>
@@ -247,9 +360,7 @@
             <div class="form-group">
               <label class="form-label">終了日<span class="required">*</span></label>
               <input type="date" class="form-input" th:field="*{courseEndAt}" id="courseEndAt" required>
-              <div style="font-size: 12px; color: #757575; margin-top: 4px;">
-                コース選択と開始日から自動で計算されます
-              </div>
+              <div class="note">コース選択と開始日から自動で計算されます</div>
               <div th:if="${#fields.hasErrors('courseEndAt')}" th:errors="*{courseEndAt}" class="error-message"></div>
             </div>
           </div>
@@ -261,7 +372,7 @@
           <div class="form-grid single">
             <div class="form-group">
               <label class="form-label">備考</label>
-              <textarea class="form-textarea" th:field="*{remark}"></textarea>
+              <textarea class="form-textarea" th:field="*{remark}" placeholder="特記事項があれば入力してください"></textarea>
               <div th:if="${#fields.hasErrors('remark')}" th:errors="*{remark}" class="error-message"></div>
             </div>
           </div>
@@ -269,23 +380,29 @@
       </div>
 
       <div class="form-actions">
-        <a href="/studentList" class="btn btn-secondary">キャンセル</a>
+        <a href="/studentList" class="btn btn-secondary">学生一覧</a>
+        <a href="/courseList" class="btn btn-secondary">コース一覧</a>
         <button type="submit" class="btn btn-success">登録完了</button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- JavaScript（終了日自動計算） -->
 <script>
+  /**
+   * コース終了日を自動計算する関数
+   * コース名と開始日から適切な終了日を設定
+   */
   function calculateEndDate() {
     const courseName = document.getElementById('courseName').value;
     const startDateValue = document.getElementById('courseStartAt').value;
 
+    // どちらかが未入力の場合は処理しない
     if (!courseName || !startDateValue) {
       return;
     }
 
+    // コース別の期間設定
     let months;
     switch(courseName) {
       case 'Java入門':
@@ -298,16 +415,98 @@
         months = 8;
         break;
       default:
-        months = 6;
+        months = 6; // デフォルト値
         break;
     }
 
+    // 終了日を計算
     const startDate = new Date(startDateValue);
     const endDate = new Date(startDate);
     endDate.setMonth(endDate.getMonth() + months);
 
+    // フォームに設定
     document.getElementById('courseEndAt').value = endDate.toISOString().split('T')[0];
   }
+
+  /**
+   * 名前とカナ名の入力時にスペースを自動変換
+   * 半角スペースを全角スペースに統一
+   */
+  document.addEventListener('DOMContentLoaded', function() {
+    const nameInput = document.querySelector('input[name="name"]');
+    const kanaNameInput = document.querySelector('input[name="kanaName"]');
+
+    /**
+     * スペース正規化関数
+     * @param {HTMLInputElement} input - 対象の入力フィールド
+     */
+    function normalizeSpaces(input) {
+      input.addEventListener('input', function() {
+        // 半角スペースを全角スペースに変換
+        this.value = this.value.replace(/ /g, '　');
+      });
+
+      // フォーカスアウト時にも実行（確実性を高める）
+      input.addEventListener('blur', function() {
+        this.value = this.value.replace(/ /g, '　');
+      });
+    }
+
+    // 名前フィールドにスペース正規化を適用
+    if (nameInput) {
+      normalizeSpaces(nameInput);
+    }
+
+    // カナ名フィールドにスペース正規化を適用
+    if (kanaNameInput) {
+      normalizeSpaces(kanaNameInput);
+    }
+
+    // フォーム送信前の最終チェック
+    const form = document.querySelector('form');
+    if (form) {
+      form.addEventListener('submit', function(e) {
+        // 名前とカナ名の最終スペース正規化
+        if (nameInput) {
+          nameInput.value = nameInput.value.replace(/ /g, '　');
+        }
+        if (kanaNameInput) {
+          kanaNameInput.value = kanaNameInput.value.replace(/ /g, '　');
+        }
+      });
+    }
+  });
+
+  /**
+   * 入力値のリアルタイムバリデーション（オプション）
+   */
+  document.addEventListener('DOMContentLoaded', function() {
+    // 年齢の範囲チェック
+    const ageInput = document.querySelector('input[name="age"]');
+    if (ageInput) {
+      ageInput.addEventListener('input', function() {
+        const age = parseInt(this.value);
+        if (age < 16 || age > 100) {
+          this.setCustomValidity('年齢は16歳以上100歳以下で入力してください');
+        } else {
+          this.setCustomValidity('');
+        }
+      });
+    }
+
+    // メールアドレスの形式チェック（ブラウザ標準に加えて）
+    const emailInput = document.querySelector('input[name="email"]');
+    if (emailInput) {
+      emailInput.addEventListener('blur', function() {
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (this.value && !emailPattern.test(this.value)) {
+          this.setCustomValidity('正しいメールアドレスの形式で入力してください');
+        } else {
+          this.setCustomValidity('');
+        }
+      });
+    }
+  });
 </script>
 </body>
 </html>
