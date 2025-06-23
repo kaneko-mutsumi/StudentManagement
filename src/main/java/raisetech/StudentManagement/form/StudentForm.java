@@ -18,7 +18,6 @@ public class StudentForm {
   private Integer id;
   private Integer courseId;
 
-
   @NotBlank(message = "名前は必須です")
   private String name;
 
@@ -52,6 +51,60 @@ public class StudentForm {
   @NotNull(message = "終了日を入力してください")
   private LocalDate courseEndAt;
 
+  /**
+   * スペースを全角に変換するメソッド
+   * 初心者向け：シンプルな文字列変換
+   */
+  private String fixSpaces(String text) {
+    if (text == null) {
+      return null;
+    }
+    return text.replace(" ", "　"); // 半角スペース→全角スペース
+  }
+
+  /**
+   * ひらがなをカタカナに変換するメソッド
+   * 初心者向け：基本的なひらがな→カタカナ変換
+   */
+  private String convertToKatakana(String text) {
+    if (text == null) {
+      return null;
+    }
+
+    StringBuilder result = new StringBuilder();
+    for (int i = 0; i < text.length(); i++) {
+      char c = text.charAt(i);
+
+      // ひらがなの範囲（あ〜ん）をカタカナに変換
+      if (c >= 'あ' && c <= 'ん') {
+        // ひらがなからカタカナへの変換
+        // 「あ」(12354) → 「ア」(12450) なので +96
+        result.append((char)(c + 96));
+      } else {
+        // ひらがな以外はそのまま
+        result.append(c);
+      }
+    }
+    return result.toString();
+  }
+
+  /**
+   * 名前のsetterをカスタマイズ
+   * スペースを全角に統一
+   */
+  public void setName(String name) {
+    this.name = fixSpaces(name);
+  }
+
+  /**
+   * カナ名のsetterをカスタマイズ
+   * ひらがな→カタカナ変換 + スペース統一
+   */
+  public void setKanaName(String kanaName) {
+    String converted = convertToKatakana(kanaName);
+    this.kanaName = fixSpaces(converted);
+  }
+
   public Student toStudentEntity() {
     Student student = new Student();
     student.setId(this.id);
@@ -67,13 +120,9 @@ public class StudentForm {
     return student;
   }
 
-  /**
-   * 既存の学生情報をフォームに変換する
-   */
   public static StudentForm fromStudentDetail(StudentDetail detail) {
     StudentForm form = new StudentForm();
 
-    // 学生情報をフォームにコピー
     Student student = detail.getStudent();
     form.setId(student.getId());
     form.setName(student.getName());
@@ -85,7 +134,6 @@ public class StudentForm {
     form.setSex(student.getSex());
     form.setRemark(student.getRemark());
 
-    // コース情報をフォームにコピー
     StudentsCourses course = detail.getStudentsCourse();
     if (course != null) {
       form.setCourseId(course.getId());
