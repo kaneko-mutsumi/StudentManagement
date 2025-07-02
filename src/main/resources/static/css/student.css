@@ -1,0 +1,134 @@
+/* ====================================
+   学生一覧専用スタイル（student.css）
+   学生一覧画面でのみ使用されるスタイル
+
+   このファイルは学生一覧とコース一覧のテーブル表示用のスタイルです
+   名前リンクと編集ボタンのスタイルも含まれています
+   ==================================== */
+
+/* 学生テーブル */
+.student-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.student-table th,
+.student-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.student-table th {
+  background-color: #f8f9fa;
+  font-weight: bold;
+  color: #495057;
+  position: sticky;
+  top: 0;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.student-table tr:hover {
+  background-color: #f8f9fa;
+}
+
+.student-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* 名前リンクのスタイル */
+.name-link {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.name-link:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+.name-link:visited {
+  color: #6f42c1;
+}
+
+/* 編集ボタンのスタイル */
+.btn-edit {
+  background-color: #17a2b8;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+
+.btn-edit:hover {
+  background-color: #138496;
+  color: white;
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+/* テーブルのレスポンシブ対応 */
+.table-container {
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+/* レスポンシブ対応：大きな画面 */
+@media (max-width: 1200px) {
+  .student-table {
+    font-size: 14px;
+  }
+}
+
+/* レスポンシブ対応：タブレット */
+@media (max-width: 768px) {
+  .student-table {
+    font-size: 12px;
+  }
+
+  .student-table th,
+  .student-table td {
+    padding: 8px 4px;
+  }
+
+  .btn-edit {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+}
+
+/* レスポンシブ対応：スマートフォン */
+@media (max-width: 480px) {
+  .student-table {
+    font-size: 11px;
+  }
+
+  .student-table th,
+  .student-table td {
+    padding: 6px 2px;
+  }
+
+  .btn-edit {
+    padding: 3px 6px;
+    font-size: 10px;
+  }
+
+  /* スマートフォンでは編集列を最後に配置 */
+  .student-table th:last-child,
+  .student-table td:last-child {
+    position: sticky;
+    right: 0;
+    background-color: inherit;
+  }
+}
