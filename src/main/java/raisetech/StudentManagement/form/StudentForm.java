@@ -11,6 +11,11 @@ import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentsCourses;
 import raisetech.StudentManagement.domain.StudentDetail;
 
+/**
+ * 学生情報フォーム用のクラス（シンプル版）
+ *
+ */
+
 @Getter
 @Setter
 public class StudentForm {
