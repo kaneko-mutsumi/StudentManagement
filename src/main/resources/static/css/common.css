@@ -1,0 +1,180 @@
+/* ====================================
+   共通スタイル（common.css）
+   全ページで使用される基本的なスタイル
+   ==================================== */
+
+/* リセットCSS */
+* {
+  box-sizing: border-box;
+}
+
+/* 基本スタイル */
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  background-color: #f5f5f5;
+  line-height: 1.6;
+  color: #212121;
+}
+
+/* コンテナ */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* ヘッダー */
+.header {
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  color: #007bff;
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 500;
+}
+
+/* メッセージ */
+.message {
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.info-message {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+/* ボタン共通スタイル */
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.btn:hover {
+  opacity: 0.8;
+  transform: translateY(-1px);
+}
+
+/* ボタンカラーバリエーション */
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-success {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-edit {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.btn-delete {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-cancel {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-confirm {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* 大きいボタン */
+.btn-large {
+  padding: 12px 24px;
+  margin: 0 10px;
+  font-size: 14px;
+}
+
+/* ボタングループ */
+.button-group {
+  text-align: center;
+  margin-top: 20px;
+}
+
+/* レスポンシブ：モバイル */
+@media (max-width: 768px) {
+  body {
+    margin: 10px;
+  }
+
+  .container {
+    margin: 10px;
+    padding: 15px;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn-large {
+    width: 100%;
+    margin: 0;
+  }
+}
+
+/* レスポンシブ：小さいモバイル */
+@media (max-width: 480px) {
+  .header h1 {
+    font-size: 1.3rem;
+  }
+}

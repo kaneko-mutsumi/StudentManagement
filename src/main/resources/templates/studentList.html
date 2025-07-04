@@ -2,13 +2,16 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>学生一覧 - 学生管理システム</title>
   <link rel="stylesheet" th:href="@{/css/student-list.css}">
+
 </head>
 <body>
 <div class="container">
   <div class="header">
     <h1>学生一覧</h1>
+    <p>登録されている学生の情報を確認できます。名前をクリックすると編集画面に移動します。</p>
   </div>
 
   <table class="student-table">
@@ -53,12 +56,15 @@
     </tbody>
   </table>
 
+
+  <!-- ボタングループ -->
   <div class="button-group">
-    <a href="/newStudent" class="btn btn-primary">新規学生登録</a>
-    <a href="/courseList" class="btn btn-secondary">コース一覧</a>
+    <a href="/newStudent" class="btn btn-primary btn-large">新規学生登録</a>
+    <a href="/courseList" class="btn btn-secondary btn-large">コース一覧</a>
   </div>
 </div>
 
 <script th:src="@{/js/student-list.js}"></script>
+
 </body>
 </html>
