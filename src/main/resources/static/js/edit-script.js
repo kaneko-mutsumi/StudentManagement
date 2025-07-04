@@ -107,6 +107,9 @@ function initializeChangeDetection() {
   console.log('初期値保存:', originalValues);
 }
 
+/**
+ * 変更を検知してUIを更新
+ */
 function checkForChanges() {
   const formInputs = document.querySelectorAll('input, select, textarea');
   const changes = [];
