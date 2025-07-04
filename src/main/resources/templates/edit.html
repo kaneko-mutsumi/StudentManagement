@@ -4,6 +4,8 @@
   <title>受講生編集 - 管理システム</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" th:href="@{/css/edit-style.css}">
+
+
 </head>
 <body>
 <div class="container">
@@ -84,6 +86,21 @@
             </div>
           </div>
         </div>
+
+        <!--  キャンセル状態の表示 -->
+        <div class="info-section">
+          <div class="section-title">受講状態</div>
+          <div class="info-grid single">
+            <div class="info-item">
+              <div class="info-label">現在の状態</div>
+              <div class="info-value"
+                   th:classappend="${studentForm.cancelled ? 'cancelled-status' : 'active-status'}">
+                    <span
+                        th:text="${studentForm.cancelled ? 'キャンセル済み' : '受講中'}">受講中</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -102,25 +119,30 @@
               <div class="form-group">
                 <label class="form-label">名前<span class="required">*</span></label>
                 <input type="text" class="form-input" th:field="*{name}" required>
-                <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="error-message"></div>
+                <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}"
+                     class="error-message"></div>
               </div>
 
               <div class="form-group">
                 <label class="form-label">カナ名<span class="required">*</span></label>
                 <input type="text" class="form-input" th:field="*{kanaName}" required>
-                <div th:if="${#fields.hasErrors('kanaName')}" th:errors="*{kanaName}" class="error-message"></div>
+                <div th:if="${#fields.hasErrors('kanaName')}" th:errors="*{kanaName}"
+                     class="error-message"></div>
               </div>
 
               <div class="form-group">
                 <label class="form-label">ニックネーム</label>
                 <input type="text" class="form-input" th:field="*{nickname}">
-                <div th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}" class="error-message"></div>
+                <div th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}"
+                     class="error-message"></div>
               </div>
 
               <div class="form-group">
                 <label class="form-label">年齢<span class="required">*</span></label>
-                <input type="number" class="form-input" th:field="*{age}" min="1" max="100" required>
-                <div th:if="${#fields.hasErrors('age')}" th:errors="*{age}" class="error-message"></div>
+                <input type="number" class="form-input" th:field="*{age}" min="1" max="100"
+                       required>
+                <div th:if="${#fields.hasErrors('age')}" th:errors="*{age}"
+                     class="error-message"></div>
               </div>
             </div>
 
@@ -134,21 +156,25 @@
                   <option value="その他">その他</option>
                   <option value="無回答">無回答</option>
                 </select>
-                <div th:if="${#fields.hasErrors('sex')}" th:errors="*{sex}" class="error-message"></div>
+                <div th:if="${#fields.hasErrors('sex')}" th:errors="*{sex}"
+                     class="error-message"></div>
               </div>
 
               <div class="form-group">
                 <label class="form-label">地域<span class="required">*</span></label>
                 <input type="text" class="form-input" th:field="*{area}" required>
-                <div th:if="${#fields.hasErrors('area')}" th:errors="*{area}" class="error-message"></div>
+                <div th:if="${#fields.hasErrors('area')}" th:errors="*{area}"
+                     class="error-message"></div>
               </div>
             </div>
 
             <div class="form-grid single">
               <div class="form-group">
-                <label class="form-label">メールアドレス<span class="required">*</span></label>
+                <label class="form-label">メールアドレス<span
+                    class="required">*</span></label>
                 <input type="email" class="form-input" th:field="*{email}" required>
-                <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error-message"></div>
+                <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}"
+                     class="error-message"></div>
               </div>
             </div>
           </div>
@@ -158,11 +184,14 @@
             <div class="form-grid">
               <div class="form-group">
                 <label class="form-label">コース名<span class="required">*</span></label>
-                <select class="form-select" th:field="*{courseName}" id="courseName" onchange="calculateEndDate()" required>
+                <select class="form-select" th:field="*{courseName}" id="courseName"
+                        onchange="calculateEndDate()" required>
                   <option value="">選択してください</option>
-                  <option th:each="course : ${courseOptions}" th:value="${course}" th:text="${course}"></option>
+                  <option th:each="course : ${courseOptions}" th:value="${course}"
+                          th:text="${course}"></option>
                 </select>
-                <div th:if="${#fields.hasErrors('courseName')}" th:errors="*{courseName}" class="error-message"></div>
+                <div th:if="${#fields.hasErrors('courseName')}" th:errors="*{courseName}"
+                     class="error-message"></div>
               </div>
 
               <div class="form-group">
@@ -171,7 +200,8 @@
                        th:value="${studentForm.courseStartAt != null ? #temporals.format(studentForm.courseStartAt, 'yyyy-MM-dd') : ''}"
                        th:data-initial-value="${studentForm.courseStartAt != null ? #temporals.format(studentForm.courseStartAt, 'yyyy-MM-dd') : ''}"
                        id="courseStartAt" onchange="calculateEndDate()" required>
-                <div th:if="${#fields.hasErrors('courseStartAt')}" th:errors="*{courseStartAt}" class="error-message"></div>
+                <div th:if="${#fields.hasErrors('courseStartAt')}"
+                     th:errors="*{courseStartAt}" class="error-message"></div>
               </div>
             </div>
 
@@ -183,7 +213,8 @@
                        th:data-initial-value="${studentForm.courseEndAt != null ? #temporals.format(studentForm.courseEndAt, 'yyyy-MM-dd') : ''}"
                        id="courseEndAt" required>
                 <div class="note">コース選択と開始日から自動で計算されます</div>
-                <div th:if="${#fields.hasErrors('courseEndAt')}" th:errors="*{courseEndAt}" class="error-message"></div>
+                <div th:if="${#fields.hasErrors('courseEndAt')}" th:errors="*{courseEndAt}"
+                     class="error-message"></div>
               </div>
             </div>
           </div>
@@ -194,7 +225,36 @@
               <div class="form-group">
                 <label class="form-label">備考</label>
                 <textarea class="form-textarea" th:field="*{remark}"></textarea>
-                <div th:if="${#fields.hasErrors('remark')}" th:errors="*{remark}" class="error-message"></div>
+                <div th:if="${#fields.hasErrors('remark')}" th:errors="*{remark}"
+                     class="error-message"></div>
+              </div>
+            </div>
+          </div>
+
+
+          <!--  キャンセル機能を追加 -->
+          <div class="form-section">
+            <div class="section-title">受講状態の変更</div>
+            <div class="form-grid single">
+              <div class="form-group">
+                <div class="checkbox-group">
+                  <input type="checkbox"
+                         class="form-checkbox"
+                         th:field="*{cancelled}"
+                         id="cancelled"
+                         onchange="toggleCancelledState()">
+                  <label for="cancelled" class="checkbox-label">
+                    <span class="checkbox-text">この受講生をキャンセルする</span>
+                    <span class="checkbox-note">
+                      チェックすると、この受講生は一覧画面に表示されなくなります
+                    </span>
+                  </label>
+                </div>
+                <div class="cancel-warning" id="cancelWarning" style="display: none;">
+                  <strong>⚠️ 注意:</strong>
+                  キャンセルすると、一覧画面に表示されなくなります。
+                  元に戻すには、この画面で再度チェックを外してください。
+                </div>
               </div>
             </div>
           </div>

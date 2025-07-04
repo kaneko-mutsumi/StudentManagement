@@ -85,7 +85,9 @@ public interface StudentRepository {
           area = #{area},
           age = #{age},
           sex = #{sex},
-          remark = #{remark}
+          remark = #{remark},
+          deleted = #{deleted}
+      
       WHERE id = #{id}
       """)
   void updateStudent(Student student);
@@ -104,7 +106,6 @@ public interface StudentRepository {
 
   /**
    * 学生を論理削除する
-   *
    */
   @Update("UPDATE students SET deleted = 1 WHERE id = #{id}")
   void deleteStudent(int id);
