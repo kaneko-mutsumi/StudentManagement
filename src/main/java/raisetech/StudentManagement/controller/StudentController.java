@@ -21,7 +21,6 @@ import raisetech.StudentManagement.service.StudentService;
 
 /**
  * 学生情報に関するHTTPリクエストを処理するController
- * 単一責任の原則に従い、Webリクエストの処理のみを行う
  */
 @Controller
 public class StudentController {
@@ -184,7 +183,6 @@ public class StudentController {
 
   /**
    * コース選択肢をモデルに追加する共通メソッド
-   * DRY原則（Don't Repeat Yourself）に従い、重複コードを削除
    */
   private void addCourseOptionsToModel(Model model) {
     model.addAttribute("courseOptions",

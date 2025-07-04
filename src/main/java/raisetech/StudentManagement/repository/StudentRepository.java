@@ -101,4 +101,12 @@ public interface StudentRepository {
       WHERE student_id = #{studentId}
       """)
   void updateCourse(StudentsCourses course);
+
+  /**
+   * 学生を論理削除する
+   *
+   */
+  @Update("UPDATE students SET deleted = 1 WHERE id = #{id}")
+  void deleteStudent(int id);
+
 }

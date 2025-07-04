@@ -4,10 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>学生一覧 - 学生管理システム</title>
+  <link rel="stylesheet" th:href="@{/css/student-list.css}">
 
-  <!-- CSS読み込み -->
-  <link rel="stylesheet" th:href="@{/css/common.css}">
-  <link rel="stylesheet" th:href="@{/css/student.css}">
 </head>
 <body>
 <div class="container">
@@ -16,62 +14,48 @@
     <p>登録されている学生の情報を確認できます。名前をクリックすると編集画面に移動します。</p>
   </div>
 
-  <!-- 成功・エラーメッセージ表示 -->
-  <div th:if="${successMessage}" class="message success-message" th:text="${successMessage}">
-    操作が正常に完了しました。
-  </div>
-  <div th:if="${errorMessage}" class="message error-message" th:text="${errorMessage}">
-    エラーが発生しました。
-  </div>
+  <table class="student-table">
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>名前</th>
+      <th>カナ名</th>
+      <th>ニックネーム</th>
+      <th>メールアドレス</th>
+      <th>地域</th>
+      <th>年齢</th>
+      <th>性別</th>
+      <th>コース名</th>
+      <th>開始日</th>
+      <th>終了日</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="studentDetail : ${studentList}">
+      <td th:text="${studentDetail.student.id}">1</td>
+      <td>
+        <a th:href="@{/student/{id}/edit(id=${studentDetail.student.id})}"
+           th:text="${studentDetail.student.name}">山田太郎</a>
+      </td>
+      <td th:text="${studentDetail.student.kanaName}">ヤマダタロウ</td>
+      <td th:text="${studentDetail.student.nickname}">タロー</td>
+      <td th:text="${studentDetail.student.email}">taro@example.com</td>
+      <td th:text="${studentDetail.student.area}">東京都</td>
+      <td th:text="${studentDetail.student.age}">20</td>
+      <td th:text="${studentDetail.student.sex}">男性</td>
+      <td th:text="${studentDetail.studentsCourse != null ? studentDetail.studentsCourse.courseName : '未登録'}">
+        Java入門
+      </td>
+      <td th:text="${studentDetail.studentsCourse != null ? studentDetail.studentsCourse.courseStartAt : ''}">
+        2024-04-01
+      </td>
+      <td th:text="${studentDetail.studentsCourse != null ? studentDetail.studentsCourse.courseEndAt : ''}">
+        2024-07-01
+      </td>
+    </tr>
+    </tbody>
+  </table>
 
-  <!-- 学生テーブル（名前リンクのみ） -->
-  <div class="table-container">
-    <table class="student-table">
-      <thead>
-      <tr>
-        <th>ID</th>
-        <th>名前</th>
-        <th>カナ名</th>
-        <th>ニックネーム</th>
-        <th>メールアドレス</th>
-        <th>地域</th>
-        <th>年齢</th>
-        <th>性別</th>
-        <th>コース名</th>
-        <th>開始日</th>
-        <th>終了日</th>
-        <!-- 編集列を削除 -->
-      </tr>
-      </thead>
-      <tbody>
-      <!-- 各学生の情報を表示（名前のみクリック可能） -->
-      <tr th:each="studentDetail : ${studentList}">
-        <td th:text="${studentDetail.student.id}">1</td>
-        <!-- 名前のみがクリック可能なリンク（編集画面に遷移） -->
-        <td>
-          <a th:href="@{/student/{id}/edit(id=${studentDetail.student.id})}"
-             th:text="${studentDetail.student.name}"
-             class="name-link">山田太郎</a>
-        </td>
-        <td th:text="${studentDetail.student.kanaName}">ヤマダ タロウ</td>
-        <td th:text="${studentDetail.student.nickname ?: '未設定'}">タロー</td>
-        <td th:text="${studentDetail.student.email}">taro@example.com</td>
-        <td th:text="${studentDetail.student.area}">東京都</td>
-        <td th:text="${studentDetail.student.age}">20</td>
-        <td th:text="${studentDetail.student.sex}">男性</td>
-        <td th:text="${studentDetail.studentsCourse != null ? studentDetail.studentsCourse.courseName : '未登録'}">
-          Java入門
-        </td>
-        <td th:text="${studentDetail.studentsCourse != null ? studentDetail.studentsCourse.courseStartAt : ''}">
-          2024-04-01
-        </td>
-        <td th:text="${studentDetail.studentsCourse != null ? studentDetail.studentsCourse.courseEndAt : ''}">
-          2024-07-01
-        </td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
 
   <!-- ボタングループ -->
   <div class="button-group">
@@ -80,7 +64,7 @@
   </div>
 </div>
 
-<!-- JavaScript読み込み -->
-<script th:src="@{/js/common.js}"></script>
+<script th:src="@{/js/student-list.js}"></script>
+
 </body>
 </html>
