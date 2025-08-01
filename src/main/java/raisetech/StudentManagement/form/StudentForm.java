@@ -12,8 +12,8 @@ import raisetech.StudentManagement.data.StudentsCourses;
 import raisetech.StudentManagement.domain.StudentDetail;
 
 /**
- * 学生情報フォーム用のクラス（シンプル版）
- *
+ * 学生情報フォーム用のクラス
+ *追加機能：キャンセル（論理削除）フラグを追加
  */
 
 @Getter
@@ -55,6 +55,14 @@ public class StudentForm {
 
   @NotNull(message = "終了日を入力してください")
   private LocalDate courseEndAt;
+
+  /**
+   * キャンセルフラグ
+   * true: キャンセル済み（一覧に表示されない）
+   * false または null: 通常状態（一覧に表示される）
+   */
+  private Boolean cancelled;
+
 
   /**
    * スペースを全角に変換するメソッド
@@ -121,7 +129,7 @@ public class StudentForm {
     student.setAge(this.age);
     student.setSex(this.sex);
     student.setRemark(this.remark);
-    student.setDeleted(false);
+    student.setDeleted(this.cancelled != null && this.cancelled);
     return student;
   }
 
@@ -138,6 +146,7 @@ public class StudentForm {
     form.setAge(student.getAge());
     form.setSex(student.getSex());
     form.setRemark(student.getRemark());
+    form.setCancelled(student.getDeleted() != null && student.getDeleted());
 
     StudentsCourses course = detail.getStudentsCourse();
     if (course != null) {

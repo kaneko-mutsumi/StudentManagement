@@ -52,6 +52,26 @@ function convertToKatakana(text) {
   return result;
 }
 
+//  キャンセル状態の切り替え機能
+/**
+ * キャンセルチェックボックスの状態変更時の処理
+ */
+function toggleCancelledState() {
+  const checkbox = document.getElementById('cancelled');
+  const warning = document.getElementById('cancelWarning');
+
+  if (checkbox && warning) {
+    // チェックされている場合は警告を表示
+    if (checkbox.checked) {
+      warning.style.display = 'block';
+      console.log('キャンセル状態に変更されました');
+    } else {
+      warning.style.display = 'none';
+      console.log('キャンセル状態が解除されました');
+    }
+  }
+}
+
 // 変更検知機能
 let originalValues = {};
 
@@ -60,17 +80,21 @@ document.addEventListener('DOMContentLoaded', function() {
   const nameInput = document.querySelector('input[name="name"]');
   const kanaNameInput = document.querySelector('input[name="kanaName"]');
 
-  // 編集画面での初期値設定（重要！）
+  // 編集画面での初期値設定
   setInitialDateValues();
 
-  // 変更検知機能の初期化
-  initializeChangeDetection();
+    // 変更検知機能の初期化
+    initializeChangeDetection();
+
+    // キャンセルチェックボックスの初期状態設定
+    initializeCancelledState();
 
   // 名前フィールドのスペース変換
   if (nameInput) {
     nameInput.addEventListener('input', function() {
       this.value = this.value.replace(/ /g, '　');
-      checkForChanges(); // 変更検知
+          checkForChanges();
+
     });
   }
 
@@ -81,10 +105,29 @@ document.addEventListener('DOMContentLoaded', function() {
       let converted = convertToKatakana(this.value);
       // 半角スペースを全角スペースに変換
       this.value = converted.replace(/ /g, '　');
-      checkForChanges(); // 変更検知
+          checkForChanges();
     });
   }
 });
+
+/**
+ *  キャンセル状態の初期化
+ */
+function initializeCancelledState() {
+  const checkbox = document.getElementById('cancelled');
+  const warning = document.getElementById('cancelWarning');
+
+  if (checkbox && warning) {
+    // 初期状態でチェックされている場合は警告を表示
+    if (checkbox.checked) {
+      warning.style.display = 'block';
+    } else {
+      warning.style.display = 'none';
+    }
+
+    console.log('キャンセル状態の初期化完了:', checkbox.checked ? 'キャンセル済み' : '通常状態');
+  }
+}
 
 /**
  * 変更検知機能の初期化
@@ -96,11 +139,20 @@ function initializeChangeDetection() {
   formInputs.forEach(function(input) {
     // hiddenフィールドは除外
     if (input.type !== 'hidden') {
-      originalValues[input.name] = input.value;
+      // チェックボックスの場合は checked プロパティを使用
+      if (input.type === 'checkbox') {
+        originalValues[input.name] = input.checked;
+      } else {
+        originalValues[input.name] = input.value;
+      }
 
       // 入力イベントリスナーを追加
-      input.addEventListener('input', checkForChanges);
-      input.addEventListener('change', checkForChanges);
+      if (input.type === 'checkbox') {
+        input.addEventListener('change', checkForChanges);
+      } else {
+        input.addEventListener('input', checkForChanges);
+        input.addEventListener('change', checkForChanges);
+      }
     }
   });
 
@@ -117,7 +169,14 @@ function checkForChanges() {
   formInputs.forEach(function(input) {
     if (input.type !== 'hidden' && input.name in originalValues) {
       const originalValue = originalValues[input.name];
-      const currentValue = input.value;
+      let currentValue;
+
+      // チェックボックスの場合は checked プロパティを使用
+      if (input.type === 'checkbox') {
+        currentValue = input.checked;
+      } else {
+        currentValue = input.value;
+      }
 
       if (originalValue !== currentValue) {
         // 変更されたフィールドにスタイルを適用
@@ -125,11 +184,21 @@ function checkForChanges() {
 
         // 変更内容を記録
         const fieldLabel = getFieldLabel(input.name);
-        changes.push({
-          field: fieldLabel,
-          original: originalValue || '（空）',
-          current: currentValue || '（空）'
-        });
+
+        // チェックボックスの場合の表示
+        if (input.type === 'checkbox') {
+          changes.push({
+            field: fieldLabel,
+            original: originalValue ? 'チェック済み' : 'チェックなし',
+            current: currentValue ? 'チェック済み' : 'チェックなし'
+          });
+        } else {
+          changes.push({
+            field: fieldLabel,
+            original: originalValue || '（空）',
+            current: currentValue || '（空）'
+          });
+        }
       } else {
         // 変更されていないフィールドからスタイルを削除
         input.classList.remove('changed');
@@ -156,7 +225,8 @@ function getFieldLabel(fieldName) {
     'courseName': 'コース名',
     'courseStartAt': '開始日',
     'courseEndAt': '終了日',
-    'remark': '備考'
+    'remark': '備考',
+    'cancelled': 'キャンセル状態' // 追加
   };
 
   return labels[fieldName] || fieldName;
