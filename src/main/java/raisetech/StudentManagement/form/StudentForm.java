@@ -7,15 +7,10 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
-import raisetech.StudentManagement.data.Student;
-import raisetech.StudentManagement.data.StudentsCourses;
-import raisetech.StudentManagement.domain.StudentDetail;
 
 /**
- * 学生情報フォーム用のクラス
- *追加機能：キャンセル（論理削除）フラグを追加
+ * 学生情報フォームクラス
  */
-
 @Getter
 @Setter
 public class StudentForm {
@@ -56,123 +51,4 @@ public class StudentForm {
   @NotNull(message = "終了日を入力してください")
   private LocalDate courseEndAt;
 
-  /**
-   * キャンセルフラグ
-   * true: キャンセル済み（一覧に表示されない）
-   * false または null: 通常状態（一覧に表示される）
-   */
-  private Boolean cancelled;
-
-
-  /**
-   * スペースを全角に変換するメソッド
-   * 初心者向け：シンプルな文字列変換
-   */
-  private String fixSpaces(String text) {
-    if (text == null) {
-      return null;
-    }
-    return text.replace(" ", "　"); // 半角スペース→全角スペース
-  }
-
-  /**
-   * ひらがなをカタカナに変換するメソッド
-   * 初心者向け：基本的なひらがな→カタカナ変換
-   */
-  private String convertToKatakana(String text) {
-    if (text == null) {
-      return null;
-    }
-
-    StringBuilder result = new StringBuilder();
-    for (int i = 0; i < text.length(); i++) {
-      char c = text.charAt(i);
-
-      // ひらがなの範囲（あ〜ん）をカタカナに変換
-      if (c >= 'あ' && c <= 'ん') {
-        // ひらがなからカタカナへの変換
-        // 「あ」(12354) → 「ア」(12450) なので +96
-        result.append((char)(c + 96));
-      } else {
-        // ひらがな以外はそのまま
-        result.append(c);
-      }
-    }
-    return result.toString();
-  }
-
-  /**
-   * 名前のsetterをカスタマイズ
-   * スペースを全角に統一
-   */
-  public void setName(String name) {
-    this.name = fixSpaces(name);
-  }
-
-  /**
-   * カナ名のsetterをカスタマイズ
-   * ひらがな→カタカナ変換 + スペース統一
-   */
-  public void setKanaName(String kanaName) {
-    String converted = convertToKatakana(kanaName);
-    this.kanaName = fixSpaces(converted);
-  }
-
-  public Student toStudentEntity() {
-    Student student = new Student();
-    student.setId(this.id);
-    student.setName(this.name);
-    student.setKanaName(this.kanaName);
-    student.setNickname(this.nickname);
-    student.setEmail(this.email);
-    student.setArea(this.area);
-    student.setAge(this.age);
-    student.setSex(this.sex);
-    student.setRemark(this.remark);
-    student.setDeleted(this.cancelled != null && this.cancelled);
-    return student;
-  }
-
-  public static StudentForm fromStudentDetail(StudentDetail detail) {
-    StudentForm form = new StudentForm();
-
-    Student student = detail.getStudent();
-    form.setId(student.getId());
-    form.setName(student.getName());
-    form.setKanaName(student.getKanaName());
-    form.setNickname(student.getNickname());
-    form.setEmail(student.getEmail());
-    form.setArea(student.getArea());
-    form.setAge(student.getAge());
-    form.setSex(student.getSex());
-    form.setRemark(student.getRemark());
-    form.setCancelled(student.getDeleted() != null && student.getDeleted());
-
-    StudentsCourses course = detail.getStudentsCourse();
-    if (course != null) {
-      form.setCourseId(course.getId());
-      form.setCourseName(course.getCourseName());
-      form.setCourseStartAt(course.getCourseStartAt());
-      form.setCourseEndAt(course.getCourseEndAt());
-    }
-
-    return form;
-  }
-
-  public StudentsCourses toCourseEntity() {
-    StudentsCourses course = new StudentsCourses();
-    course.setId(this.courseId != null ? this.courseId : 0);
-    course.setStudentId(this.id != null ? this.id : 0);
-    course.setCourseName(this.courseName);
-    course.setCourseStartAt(this.courseStartAt);
-    course.setCourseEndAt(this.courseEndAt);
-    return course;
-  }
-
-  public StudentDetail toStudentDetail() {
-    StudentDetail detail = new StudentDetail();
-    detail.setStudent(toStudentEntity());
-    detail.setStudentsCourse(toCourseEntity());
-    return detail;
-  }
 }

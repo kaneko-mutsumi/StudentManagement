@@ -1,33 +1,27 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>学生一覧 - 学生管理システム</title>
-  <link rel="stylesheet" th:href="@{/css/student-list.css}">
+  <title>学生一覧</title>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <h1>学生一覧</h1>
-  </div>
+<h1>学生一覧</h1>
 
-  <table class="student-table">
-    <thead>
+<form th:action="@{/student/cancel}" method="post">
+  <table border="1">
     <tr>
       <th>ID</th>
       <th>名前</th>
       <th>カナ名</th>
       <th>ニックネーム</th>
-      <th>メールアドレス</th>
+      <th>メール</th>
       <th>地域</th>
       <th>年齢</th>
       <th>性別</th>
       <th>コース名</th>
       <th>開始日</th>
       <th>終了日</th>
+      <th>キャンセル</th>
     </tr>
-    </thead>
-    <tbody>
     <tr th:each="studentDetail : ${studentList}">
       <td th:text="${studentDetail.student.id}">1</td>
       <td>
@@ -36,29 +30,24 @@
       </td>
       <td th:text="${studentDetail.student.kanaName}">ヤマダタロウ</td>
       <td th:text="${studentDetail.student.nickname}">タロー</td>
-      <td th:text="${studentDetail.student.email}">taro@example.com</td>
+      <td th:text="${studentDetail.student.email}">yamada@example.com</td>
       <td th:text="${studentDetail.student.area}">東京都</td>
       <td th:text="${studentDetail.student.age}">20</td>
       <td th:text="${studentDetail.student.sex}">男性</td>
-      <td th:text="${studentDetail.studentsCourse != null ? studentDetail.studentsCourse.courseName : '未登録'}">
-        Java入門
-      </td>
-      <td th:text="${studentDetail.studentsCourse != null ? studentDetail.studentsCourse.courseStartAt : ''}">
-        2024-04-01
-      </td>
-      <td th:text="${studentDetail.studentsCourse != null ? studentDetail.studentsCourse.courseEndAt : ''}">
-        2024-07-01
+      <td th:text="${studentDetail.studentsCourse != null ? studentDetail.studentsCourse.courseName : ''}">Java入門</td>
+      <td th:text="${studentDetail.studentsCourse != null ? studentDetail.studentsCourse.courseStartAt : ''}">2024-04-01</td>
+      <td th:text="${studentDetail.studentsCourse != null ? studentDetail.studentsCourse.courseEndAt : ''}">2024-07-01</td>
+      <td>
+        <input type="checkbox" name="ids" th:value="${studentDetail.student.id}">
       </td>
     </tr>
-    </tbody>
   </table>
 
-  <div class="button-group">
-    <a href="/newStudent" class="btn btn-primary">新規学生登録</a>
-    <a href="/courseList" class="btn btn-secondary">コース一覧</a>
-  </div>
-</div>
-
-<script th:src="@{/js/student-list.js}"></script>
+  <p>
+    <button type="submit">更新</button>
+    <a href="/newStudent">新規登録</a>
+    <a href="/courseList">コース一覧</a>
+  </p>
+</form>
 </body>
 </html>

@@ -1,191 +1,90 @@
 package raisetech.StudentManagement.controller;
 
-import jakarta.validation.Valid;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import raisetech.StudentManagement.data.Student;
-import raisetech.StudentManagement.data.StudentsCourses;
-import raisetech.StudentManagement.domain.StudentDetail;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import raisetech.StudentManagement.form.StudentForm;
 import raisetech.StudentManagement.service.StudentService;
 
 /**
- * 学生情報に関するHTTPリクエストを処理するController
+ * 学生管理コントローラー
  */
 @Controller
 public class StudentController {
 
-  private static final Logger logger = LoggerFactory.getLogger(StudentController.class);
-  private final StudentService service;
-
   @Autowired
-  public StudentController(StudentService service) {
-    this.service = service;
-  }
+  private StudentService service;
 
-  /**
-   * 学生一覧画面を表示する
-   */
   @GetMapping("/studentList")
-  public String showStudentList(Model model) {
-    try {
-      List<StudentDetail> studentList = service.searchStudentList();
-      model.addAttribute("studentList", studentList);
-      return "studentList";
-    } catch (Exception e) {
-      logger.error("学生一覧取得でエラーが発生しました", e);
-      model.addAttribute("errorMessage", "データの取得に失敗しました");
-      return "error";
-    }
+  public String studentList(Model model) {
+    System.out.println("=== 学生一覧画面アクセス ===");
+    model.addAttribute("studentList", service.getStudentList());
+    return "studentList";
   }
 
-  /**
-   * コース一覧画面を表示する
-   */
   @GetMapping("/courseList")
-  public String showCourseList(Model model) {
-    try {
-      List<StudentsCourses> coursesList = service.searchStudentsCourseList();
-      model.addAttribute("courseList", coursesList);
-      return "courseList";
-    } catch (Exception e) {
-      logger.error("コース一覧取得でエラーが発生しました", e);
-      model.addAttribute("errorMessage", "データの取得に失敗しました");
-      return "error";
-    }
+  public String courseList(Model model) {
+    model.addAttribute("courseList", service.getCourseList());
+    return "courseList";
   }
 
-  /**
-   * 新規学生登録画面を表示する
-   */
   @GetMapping("/newStudent")
-  public String showNewStudentForm(Model model) {
-    try {
-      model.addAttribute("studentForm", new StudentForm());
-      addCourseOptionsToModel(model);
-      return "registerStudent";
-    } catch (Exception e) {
-      logger.error("新規登録画面表示でエラーが発生しました", e);
-      return "redirect:/studentList";
-    }
+  public String newStudent(Model model) {
+    model.addAttribute("studentForm", new StudentForm());
+    return "register";
   }
 
-  /**
-   * 新規学生登録処理を実行する
-   */
   @PostMapping("/registerStudent")
-  public String registerStudent(
-      @Valid @ModelAttribute("studentForm") StudentForm studentForm,
-      BindingResult result,
-      Model model,
-      RedirectAttributes redirectAttributes) {
-
-    logger.info("学生登録処理開始: {}", studentForm.getName());
-
-    try {
-      // バリデーションエラーがある場合
-      if (result.hasErrors()) {
-        logger.warn("バリデーションエラー: {}", result.getAllErrors());
-        addCourseOptionsToModel(model);
-        return "registerStudent";
-      }
-
-      // 登録処理
-      Student studentEntity = studentForm.toStudentEntity();
-      StudentsCourses courseEntity = studentForm.toCourseEntity();
-      StudentDetail detail = new StudentDetail();
-      detail.setStudent(studentEntity);
-      detail.setStudentsCourse(courseEntity);
-
-      service.registerStudentAndCourse(detail);
-
-      logger.info("学生登録完了: ID={}, 名前={}", studentEntity.getId(), studentEntity.getName());
-      redirectAttributes.addFlashAttribute("successMessage", "学生情報を登録しました。");
-      return "redirect:/studentList";
-
-    } catch (Exception e) {
-      logger.error("学生登録でエラーが発生しました", e);
-      redirectAttributes.addFlashAttribute("errorMessage", "登録処理中にエラーが発生しました。");
-      return "redirect:/newStudent";
-    }
+  public String registerStudent(@ModelAttribute StudentForm form) {
+    service.registerStudent(form);
+    return "redirect:/studentList";
   }
 
-  /**
-   * 編集画面を表示する
-   */
   @GetMapping("/student/{id}/edit")
-  public String showEditForm(@PathVariable int id, Model model) {
+  public String editStudent(@PathVariable int id, Model model) {
+    System.out.println("=== 編集画面コントローラー呼び出し: ID=" + id + " ===");
     try {
-      StudentDetail studentDetail = service.getStudentDetailById(id);
-      if (studentDetail == null) {
-        logger.warn("指定された学生が見つかりません: ID={}", id);
-        return "redirect:/studentList";
+      StudentForm form = service.getStudentForm(id);
+      System.out.println("=== サービスから戻った結果 ===");
+      System.out.println("フォーム名前: " + form.getName());
+      System.out.println("フォーム開始日: " + form.getCourseStartAt());
+      System.out.println("フォーム終了日: " + form.getCourseEndAt());
+
+      // 追加デバッグ
+      if (form.getCourseStartAt() != null) {
+        System.out.println("開始日の型: " + form.getCourseStartAt().getClass().getName());
+      }
+      if (form.getCourseEndAt() != null) {
+        System.out.println("終了日の型: " + form.getCourseEndAt().getClass().getName());
       }
 
-      // 既存データをフォームに変換
-      StudentForm studentForm = StudentForm.fromStudentDetail(studentDetail);
-
-      // 画面に渡すデータを設定
-      model.addAttribute("studentForm", studentForm);
-      addCourseOptionsToModel(model);
-
-      // 編集画面を表示
+      model.addAttribute("studentForm", form);
+      System.out.println("=== edit.htmlにリダイレクト ===");
       return "edit";
     } catch (Exception e) {
-      logger.error("編集画面表示でエラーが発生しました: ID={}", id, e);
-      return "redirect:/studentList";
+      System.out.println("=== エラー発生 ===");
+      e.printStackTrace();
+      return "error";
     }
   }
 
-  /**
-   * 更新処理を実行する
-   */
   @PostMapping("/student/update")
-  public String updateStudent(
-      @Valid @ModelAttribute StudentForm studentForm,
-      BindingResult result,
-      Model model,
-      RedirectAttributes redirectAttributes) {
-
-    logger.info("学生更新処理開始: ID={}, 名前={}", studentForm.getId(), studentForm.getName());
-
-    try {
-      // 入力チェックでエラーがある場合は編集画面に戻る
-      if (result.hasErrors()) {
-        logger.warn("更新時バリデーションエラー: {}", result.getAllErrors());
-        addCourseOptionsToModel(model);
-        return "edit";
-      }
-
-      StudentDetail studentDetail = studentForm.toStudentDetail();
-      service.updateStudent(studentDetail);
-
-      logger.info("学生更新完了: ID={}", studentForm.getId());
-      redirectAttributes.addFlashAttribute("successMessage", "学生情報を更新しました。");
-      return "redirect:/studentList";
-
-    } catch (Exception e) {
-      logger.error("学生更新でエラーが発生しました: ID={}", studentForm.getId(), e);
-      redirectAttributes.addFlashAttribute("errorMessage", "更新処理中にエラーが発生しました。");
-      return "redirect:/student/" + studentForm.getId() + "/edit";
-    }
+  public String updateStudent(@ModelAttribute StudentForm form) {
+    service.updateStudent(form);
+    return "redirect:/studentList";
   }
 
-  /**
-   * コース選択肢をモデルに追加する共通メソッド
-   */
-  private void addCourseOptionsToModel(Model model) {
-    model.addAttribute("courseOptions",
-        List.of("Java入門", "Spring実践", "Webアプリ開発"));
+  @PostMapping("/student/cancel")
+  public String cancelStudents(@RequestParam(value = "ids", required = false) List<Integer> ids) {
+    if (ids != null) {
+      service.cancelStudents(ids);
+    }
+    return "redirect:/studentList";
   }
 }

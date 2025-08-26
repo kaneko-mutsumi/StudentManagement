@@ -9,105 +9,79 @@ import org.apache.ibatis.annotations.Update;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentsCourses;
 
+/**
+ * 学生データベース操作
+ */
 @Mapper
 public interface StudentRepository {
 
   @Select("""
-      SELECT 
-        id,
-        name,
-        kanaName,
-        nickname,
-        email,
-        area,
-        age,
-        sex,
-        remark,
-        deleted
+      SELECT id, name, kanaName, nickname, email, area, age, sex, remark, deleted 
       FROM students 
-      WHERE deleted IS NULL OR deleted = 0
+      WHERE deleted IS NULL OR deleted = 0 
+      ORDER BY id
       """)
-  List<Student> search();
+  List<Student> getActiveStudents();
+
+  @Select("""
+      SELECT id, name, kanaName, nickname, email, area, age, sex, remark, deleted 
+      FROM students 
+      WHERE id = #{id}
+      """)
+  Student getStudent(int id);
 
   @Select("""
       SELECT 
         id,
-        name,
-        kanaName,
-        nickname,
-        email,
-        area,
-        age,
-        sex,
-        remark,
-        deleted
-      FROM students 
-      WHERE id = #{id}
+        student_id as studentId,
+        course_name as courseName,
+        course_start_at as courseStartAt,
+        course_end_at as courseEndAt
+      FROM students_courses 
+      ORDER BY id
       """)
-  Student findById(int id);
+  List<StudentsCourses> getAllCourses();
 
-  @Select("SELECT * FROM students_courses")
-  List<StudentsCourses> searchStudentsCourses();
-
-  @Select("SELECT * FROM students_courses WHERE student_id = #{studentId}")
-  StudentsCourses findCourseByStudentId(int studentId);
+  @Select("""
+      SELECT 
+        id,
+        student_id as studentId,
+        course_name as courseName,
+        course_start_at as courseStartAt,
+        course_end_at as courseEndAt
+      FROM students_courses 
+      WHERE student_id = #{studentId}
+      """)
+  StudentsCourses getCourse(int studentId);
 
   @Insert("""
-        INSERT INTO students(
-          name, kanaName, nickname, email, area,
-          age, sex, remark, deleted
-        ) VALUES (
-          #{name}, #{kanaName}, #{nickname}, #{email}, #{area},
-          #{age}, #{sex}, #{remark}, #{deleted}
-        )
+      INSERT INTO students(name, kanaName, nickname, email, area, age, sex, remark) 
+      VALUES (#{name}, #{kanaName}, #{nickname}, #{email}, #{area}, #{age}, #{sex}, #{remark})
       """)
   @Options(useGeneratedKeys = true, keyProperty = "id")
-  void insertStudent(Student student);
+  void saveStudent(Student student);
 
   @Insert("""
-          INSERT INTO students_courses(
-          student_id, course_name, course_start_at, course_end_at
-          )VALUES(
-          #{studentId}, #{courseName}, #{courseStartAt}, #{courseEndAt}
-          )
+      INSERT INTO students_courses(student_id, course_name, course_start_at, course_end_at) 
+      VALUES(#{studentId}, #{courseName}, #{courseStartAt}, #{courseEndAt})
       """)
-  void insertCourse(StudentsCourses course);
+  void saveCourse(StudentsCourses course);
 
-  /**
-   * 学生情報を更新する
-   */
   @Update("""
       UPDATE students 
-      SET name = #{name}, 
-          kanaName = #{kanaName},
-          nickname = #{nickname},
-          email = #{email},
-          area = #{area},
-          age = #{age},
-          sex = #{sex},
-          remark = #{remark},
-          deleted = #{deleted}
-      
+      SET name = #{name}, kanaName = #{kanaName}, nickname = #{nickname}, 
+          email = #{email}, area = #{area}, age = #{age}, sex = #{sex}, remark = #{remark} 
       WHERE id = #{id}
       """)
   void updateStudent(Student student);
 
-  /**
-   * コース情報を更新する
-   */
   @Update("""
       UPDATE students_courses 
-      SET course_name = #{courseName},
-          course_start_at = #{courseStartAt},
-          course_end_at = #{courseEndAt}
+      SET course_name = #{courseName}, course_start_at = #{courseStartAt}, course_end_at = #{courseEndAt} 
       WHERE student_id = #{studentId}
       """)
   void updateCourse(StudentsCourses course);
 
-  /**
-   * 学生を論理削除する
-   */
   @Update("UPDATE students SET deleted = 1 WHERE id = #{id}")
-  void deleteStudent(int id);
-
+  void cancelStudent(int id);
 }
