@@ -26,6 +26,7 @@ public class StudentForm {
 
   private String nickname;
 
+
   @Email(message = "正しいメールアドレスを入力してください")
   @NotBlank(message = "メールアドレスは必須です")
   private String email;

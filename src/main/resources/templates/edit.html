@@ -2,45 +2,57 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <title>学生編集</title>
+  <style>
+    .error { color: red; font-size: 14px; margin-top: 5px; }
+    .form-group { margin-bottom: 15px; }
+    label { font-weight: bold; }
+    input, select, textarea { width: 300px; padding: 5px; }
+    button { padding: 10px 20px; margin-right: 10px; }
+  </style>
 </head>
 <body>
 <h1>学生編集</h1>
 
-<form th:action="@{/student/update}" method="post" th:object="${studentForm}">
+<form th:action="@{/student/update}" method="post" th:object="${studentForm}" onsubmit="return disableSubmitButton(this)">
   <input type="hidden" th:field="*{id}">
   <input type="hidden" th:field="*{courseId}">
 
-  <p>
+  <div class="form-group">
     <label>名前*</label><br>
     <input type="text" th:field="*{name}" required>
-  </p>
+    <div class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+  </div>
 
-  <p>
+  <div class="form-group">
     <label>カナ名*</label><br>
     <input type="text" th:field="*{kanaName}" required>
-  </p>
+    <div class="error" th:if="${#fields.hasErrors('kanaName')}" th:errors="*{kanaName}"></div>
+  </div>
 
-  <p>
+  <div class="form-group">
     <label>ニックネーム</label><br>
     <input type="text" th:field="*{nickname}">
-  </p>
+  </div>
 
-  <p>
+  <div class="form-group">
     <label>メール*</label><br>
     <input type="email" th:field="*{email}" required>
-  </p>
+    <div class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+  </div>
 
-  <p>
+  <div class="form-group">
     <label>地域*</label><br>
     <input type="text" th:field="*{area}" required>
-  </p>
+    <div class="error" th:if="${#fields.hasErrors('area')}" th:errors="*{area}"></div>
+  </div>
 
-  <p>
+  <div class="form-group">
     <label>年齢*</label><br>
     <input type="number" th:field="*{age}" required>
-  </p>
+    <div class="error" th:if="${#fields.hasErrors('age')}" th:errors="*{age}"></div>
+  </div>
 
-  <p>
+  <div class="form-group">
     <label>性別*</label><br>
     <select th:field="*{sex}" required>
       <option value="">選択してください</option>
@@ -48,9 +60,10 @@
       <option value="女性">女性</option>
       <option value="その他">その他</option>
     </select>
-  </p>
+    <div class="error" th:if="${#fields.hasErrors('sex')}" th:errors="*{sex}"></div>
+  </div>
 
-  <p>
+  <div class="form-group">
     <label>コース名*</label><br>
     <select th:field="*{courseName}" required>
       <option value="">選択してください</option>
@@ -58,40 +71,42 @@
       <option value="Spring実践">Spring実践</option>
       <option value="Webアプリ開発">Webアプリ開発</option>
     </select>
-  </p>
+    <div class="error" th:if="${#fields.hasErrors('courseName')}" th:errors="*{courseName}"></div>
+  </div>
 
-  <!-- 修正部分: 日付フィールドの明示的な値設定 -->
-  <p>
+  <div class="form-group">
     <label>開始日*</label><br>
-    <input type="date" th:field="*{courseStartAt}"
-           th:value="${#temporals.format(studentForm.courseStartAt, 'yyyy-MM-dd')}"
-           required>
-  </p>
+    <input type="date" th:field="*{courseStartAt}" required>
+    <div class="error" th:if="${#fields.hasErrors('courseStartAt')}" th:errors="*{courseStartAt}"></div>
+  </div>
 
-  <p>
+  <div class="form-group">
     <label>終了日*</label><br>
-    <input type="date" th:field="*{courseEndAt}"
-           th:value="${#temporals.format(studentForm.courseEndAt, 'yyyy-MM-dd')}"
-           required>
-  </p>
+    <input type="date" th:field="*{courseEndAt}" required>
+    <div class="error" th:if="${#fields.hasErrors('courseEndAt')}" th:errors="*{courseEndAt}"></div>
+  </div>
 
-  <p>
+  <div class="form-group">
     <label>備考</label><br>
-    <textarea th:field="*{remark}"></textarea>
-  </p>
+    <textarea th:field="*{remark}" rows="3"></textarea>
+  </div>
 
-  <p>
+  <div>
     <button type="submit">更新</button>
     <a href="/studentList">キャンセル</a>
-  </p>
+  </div>
 </form>
 
-<!-- デバッグ用（確認後削除してください） -->
-<div style="border: 1px solid red; padding: 10px; margin: 10px;">
-  <h3>デバッグ情報</h3>
-  <p>開始日: <span th:text="${studentForm.courseStartAt}"></span></p>
-  <p>終了日: <span th:text="${studentForm.courseEndAt}"></span></p>
-</div>
-
+<script>
+  // 多重送信防止（全POSTフォーム適用）
+  function disableSubmitButton(form) {
+    const submitButton = form.querySelector('button[type="submit"]');
+    setTimeout(() => {
+      submitButton.disabled = true;
+      submitButton.textContent = '更新中...';
+    }, 100);
+    return true;
+  }
+</script>
 </body>
 </html>

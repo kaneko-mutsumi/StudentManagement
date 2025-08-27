@@ -15,6 +15,10 @@ import raisetech.StudentManagement.data.StudentsCourses;
 @Mapper
 public interface StudentRepository {
 
+  /**
+   * 有効な学生一覧を取得（論理削除されていない学生のみ）
+   * ORDER BY id でページング対応
+   */
   @Select("""
       SELECT id, name, kanaName, nickname, email, area, age, sex, remark, deleted 
       FROM students 
@@ -23,13 +27,20 @@ public interface StudentRepository {
       """)
   List<Student> getActiveStudents();
 
+  /**
+   * 学生IDで学生情報を取得
+   */
   @Select("""
       SELECT id, name, kanaName, nickname, email, area, age, sex, remark, deleted 
       FROM students 
       WHERE id = #{id}
       """)
-  Student getStudent(int id);
+  Student getStudentById(int id);
 
+  /**
+   * 全コース情報を取得（Converter結合用）
+   * ORDER BY student_id, id でグループ化に最適化
+   */
   @Select("""
       SELECT 
         id,
@@ -38,10 +49,14 @@ public interface StudentRepository {
         course_start_at as courseStartAt,
         course_end_at as courseEndAt
       FROM students_courses 
-      ORDER BY id
+      ORDER BY student_id, id
       """)
   List<StudentsCourses> getAllCourses();
 
+  /**
+   * 特定学生のコース情報を取得（複数コース対応）
+   * 戻り値：List<StudentsCourses>（指示書準拠）
+   */
   @Select("""
       SELECT 
         id,
@@ -51,37 +66,54 @@ public interface StudentRepository {
         course_end_at as courseEndAt
       FROM students_courses 
       WHERE student_id = #{studentId}
+      ORDER BY id
       """)
-  StudentsCourses getCourse(int studentId);
+  List<StudentsCourses> getCoursesByStudentId(int studentId);
 
+  /**
+   * 学生情報を登録
+   */
   @Insert("""
       INSERT INTO students(name, kanaName, nickname, email, area, age, sex, remark) 
       VALUES (#{name}, #{kanaName}, #{nickname}, #{email}, #{area}, #{age}, #{sex}, #{remark})
       """)
   @Options(useGeneratedKeys = true, keyProperty = "id")
-  void saveStudent(Student student);
+  int saveStudent(Student student);
 
+  /**
+   * コース情報を登録
+   */
   @Insert("""
       INSERT INTO students_courses(student_id, course_name, course_start_at, course_end_at) 
       VALUES(#{studentId}, #{courseName}, #{courseStartAt}, #{courseEndAt})
       """)
-  void saveCourse(StudentsCourses course);
+  int saveCourse(StudentsCourses course);
 
+  /**
+   * 学生情報を更新
+   */
   @Update("""
       UPDATE students 
       SET name = #{name}, kanaName = #{kanaName}, nickname = #{nickname}, 
           email = #{email}, area = #{area}, age = #{age}, sex = #{sex}, remark = #{remark} 
       WHERE id = #{id}
       """)
-  void updateStudent(Student student);
+  int updateStudent(Student student);
 
+  /**
+   * コース情報を更新（course.idをキーに使用）
+   * 修正意図：student_id単位の更新は複数コース環境で危険なため禁止
+   */
   @Update("""
       UPDATE students_courses 
       SET course_name = #{courseName}, course_start_at = #{courseStartAt}, course_end_at = #{courseEndAt} 
-      WHERE student_id = #{studentId}
+      WHERE id = #{id}
       """)
-  void updateCourse(StudentsCourses course);
+  int updateCourse(StudentsCourses course);
 
+  /**
+   * 学生を論理削除
+   */
   @Update("UPDATE students SET deleted = 1 WHERE id = #{id}")
-  void cancelStudent(int id);
+  int deleteStudent(int id);
 }
