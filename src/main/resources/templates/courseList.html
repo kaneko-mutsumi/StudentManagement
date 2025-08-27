@@ -1,60 +1,38 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>コース一覧 - 学生管理システム</title>
-  <link rel="stylesheet" th:href="@{/css/course-list.css}">
 
+  <title>コース一覧</title>
 </head>
 <body>
-<div class="container">
-  <!-- ページヘッダー -->
-  <div class="header">
-    <h1>コース一覧</h1>
-    <p>受講生が登録しているコース情報を確認できます</p>
-  </div>
+<h1>コース一覧</h1>
 
-  <!-- 成功・エラーメッセージ表示 -->
-  <div th:if="${successMessage}" class="message success-message" th:text="${successMessage}">
-    操作が正常に完了しました。
-  </div>
-  <div th:if="${errorMessage}" class="message error-message" th:text="${errorMessage}">
-    エラーが発生しました。
-  </div>
+<div th:if="${errorMessage}" th:text="${errorMessage}"></div>
 
-  <!-- コーステーブル -->
-  <div class="table-container">
-    <table class="student-table">
-      <thead>
-      <tr>
-        <th>コースID</th>
-        <th>受講生ID</th>
-        <th>コース名</th>
-        <th>開始日</th>
-        <th>終了日</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr th:each="course : ${courseList}">
-        <td th:text="${course.id}">1</td>
-        <td th:text="${course.studentId}">1</td>
-        <td th:text="${course.courseName}">Java入門</td>
-        <td th:text="${course.courseStartAt != null ? #temporals.format(course.courseStartAt, 'yyyy-MM-dd') : ''}">2024-04-01</td>
-        <td th:text="${course.courseEndAt != null ? #temporals.format(course.courseEndAt, 'yyyy-MM-dd') : ''}">2024-07-01</td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
+<table border="1">
+  <thead>
+  <tr>
+    <th>コースID</th>
+    <th>受講生ID</th>
+    <th>コース名</th>
+    <th>開始日</th>
+    <th>終了日</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="course : ${courseList}">
+    <td th:text="${course.id}">1</td>
+    <td th:text="${course.studentId}">1</td>
+    <td th:text="${course.courseName}">Java入門</td>
+    <td th:text="${#temporals.format(course.courseStartAt, 'yyyy/MM/dd')}">2024/04/01</td>
+    <td th:text="${#temporals.format(course.courseEndAt, 'yyyy/MM/dd')}">2024/07/01</td>
+  </tr>
+  </tbody>
+</table>
 
-  <!-- ボタングループ（新規登録ボタン） -->
-  <div class="button-group">
-    <a href="/newStudent" class="btn btn-primary btn-large">新規学生登録</a>
-    <a href="/studentList" class="btn btn-secondary btn-large">学生一覧に戻る</a>
-  </div>
-</div>
-
-<script th:src="@{/js/course-list.js}"></script>
-
+<p>
+  <a href="/studentList">学生一覧</a>
+  <a href="/newStudent">新規登録</a>
+</p>
 </body>
 </html>

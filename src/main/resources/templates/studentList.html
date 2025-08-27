@@ -1,33 +1,29 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>学生一覧 - 学生管理システム</title>
-  <link rel="stylesheet" th:href="@{/css/student-list.css}">
-
+  <title>学生一覧</title>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <h1>学生一覧</h1>
-    <p>登録されている学生の情報を確認できます。名前をクリックすると編集画面に移動します。</p>
-  </div>
+<h1>学生一覧</h1>
 
-  <table class="student-table">
+<!-- フラッシュメッセージ統一表示領域 -->
+<div th:if="${successMessage}" th:text="${successMessage}"></div>
+<div th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+<form th:action="@{/student/delete}" method="post" onsubmit="return confirmAndDisable(this)">
+  <table border="1">
     <thead>
     <tr>
       <th>ID</th>
       <th>名前</th>
       <th>カナ名</th>
       <th>ニックネーム</th>
-      <th>メールアドレス</th>
+      <th>メール</th>
       <th>地域</th>
       <th>年齢</th>
       <th>性別</th>
-      <th>コース名</th>
-      <th>開始日</th>
-      <th>終了日</th>
+      <th>コース情報</th>
+      <th>削除選択</th>
     </tr>
     </thead>
     <tbody>
@@ -38,33 +34,62 @@
            th:text="${studentDetail.student.name}">山田太郎</a>
       </td>
       <td th:text="${studentDetail.student.kanaName}">ヤマダタロウ</td>
-      <td th:text="${studentDetail.student.nickname}">タロー</td>
-      <td th:text="${studentDetail.student.email}">taro@example.com</td>
+      <td th:text="${studentDetail.student.nickname ?: '-'}">タロー</td>
+      <td th:text="${studentDetail.student.email}">yamada@example.com</td>
       <td th:text="${studentDetail.student.area}">東京都</td>
       <td th:text="${studentDetail.student.age}">20</td>
       <td th:text="${studentDetail.student.sex}">男性</td>
-      <td th:text="${studentDetail.studentsCourse != null ? studentDetail.studentsCourse.courseName : '未登録'}">
-        Java入門
+      <td>
+        <!-- 複数コース表示（指示書準拠） -->
+        <div th:if="${studentDetail.hasCourses()}">
+          <div th:each="course : ${studentDetail.studentsCourses}">
+            <strong th:text="${course.courseName}">Java入門</strong><br>
+            <span th:text="${#temporals.format(course.courseStartAt, 'yyyy/MM/dd')}">2024/04/01</span>
+            ～
+            <span th:text="${#temporals.format(course.courseEndAt, 'yyyy/MM/dd')}">2024/07/01</span>
+          </div>
+        </div>
+        <span th:unless="${studentDetail.hasCourses()}">コースなし</span>
       </td>
-      <td th:text="${studentDetail.studentsCourse != null ? studentDetail.studentsCourse.courseStartAt : ''}">
-        2024-04-01
-      </td>
-      <td th:text="${studentDetail.studentsCourse != null ? studentDetail.studentsCourse.courseEndAt : ''}">
-        2024-07-01
+      <td>
+        <input type="radio" name="selectedId" th:value="${studentDetail.student.id}">
       </td>
     </tr>
     </tbody>
   </table>
 
-
-  <!-- ボタングループ -->
-  <div class="button-group">
-    <a href="/newStudent" class="btn btn-primary btn-large">新規学生登録</a>
-    <a href="/courseList" class="btn btn-secondary btn-large">コース一覧</a>
+  <div>
   </div>
-</div>
 
-<script th:src="@{/js/student-list.js}"></script>
+  <div>
+    <button type="submit">削除</button>
+    <a href="/newStudent">新規登録</a>
+    <a href="/courseList">コース一覧</a>
+  </div>
+</form>
 
+<script>
+  // 多重送信防止付きの確認処理（指示書準拠）
+  function confirmAndDisable(form) {
+    const selectedRadio = document.querySelector('input[name="selectedId"]:checked');
+    if (!selectedRadio) {
+      alert('削除する学生を選択してください');
+      return false;
+    }
+
+    if (!confirm('選択した学生を削除しますか？')) {
+      return false;
+    }
+
+    // 多重送信防止
+    const submitButton = form.querySelector('button[type="submit"]');
+    setTimeout(() => {
+      submitButton.disabled = true;
+      submitButton.textContent = '削除中...';
+    }, 100);
+
+    return true;
+  }
+</script>
 </body>
 </html>

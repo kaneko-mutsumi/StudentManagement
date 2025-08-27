@@ -1,130 +1,102 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title>受講生登録 - 管理システム</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" th:href="@{/css/register-style.css}">
+  <title>新規学生登録</title>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <h1>新規受講生登録</h1>
-    <div>受講生の基本情報とコース情報を入力してください</div>
+<h1>新規学生登録</h1>
+
+<form th:action="@{/registerStudent}" method="post" th:object="${studentForm}" onsubmit="return disableSubmitButton(this)">
+  <div>
+    <label>名前*</label><br>
+    <input type="text" th:field="*{name}" required>
+    <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
   </div>
 
-  <div class="form-container">
-    <form th:action="@{/registerStudent}" method="post" th:object="${studentForm}">
-      <div class="form-content">
-        <div class="form-section">
-          <div class="section-title">基本情報</div>
-
-          <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label">名前<span class="required">*</span></label>
-              <input type="text" class="form-input" th:field="*{name}" required>
-              <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="error-message"></div>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">カナ名<span class="required">*</span></label>
-              <input type="text" class="form-input" th:field="*{kanaName}" required>
-              <div th:if="${#fields.hasErrors('kanaName')}" th:errors="*{kanaName}" class="error-message"></div>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">ニックネーム</label>
-              <input type="text" class="form-input" th:field="*{nickname}">
-              <div th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}" class="error-message"></div>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">年齢<span class="required">*</span></label>
-              <input type="number" class="form-input" th:field="*{age}" min="1" max="100" required>
-              <div th:if="${#fields.hasErrors('age')}" th:errors="*{age}" class="error-message"></div>
-            </div>
-          </div>
-
-          <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label">性別<span class="required">*</span></label>
-              <select class="form-select" th:field="*{sex}" required>
-                <option value="">選択してください</option>
-                <option value="男性">男性</option>
-                <option value="女性">女性</option>
-                <option value="その他">その他</option>
-                <option value="無回答">無回答</option>
-              </select>
-              <div th:if="${#fields.hasErrors('sex')}" th:errors="*{sex}" class="error-message"></div>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">地域<span class="required">*</span></label>
-              <input type="text" class="form-input" th:field="*{area}" required>
-              <div th:if="${#fields.hasErrors('area')}" th:errors="*{area}" class="error-message"></div>
-            </div>
-          </div>
-
-          <div class="form-grid single">
-            <div class="form-group">
-              <label class="form-label">メールアドレス<span class="required">*</span></label>
-              <input type="email" class="form-input" th:field="*{email}" required>
-              <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error-message"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <div class="section-title">コース情報</div>
-
-          <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label">コース名<span class="required">*</span></label>
-              <select class="form-select" th:field="*{courseName}" id="courseName" onchange="calculateEndDate()" required>
-                <option value="">選択してください</option>
-                <option th:each="course : ${courseOptions}" th:value="${course}" th:text="${course}"></option>
-              </select>
-              <div th:if="${#fields.hasErrors('courseName')}" th:errors="*{courseName}" class="error-message"></div>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">開始日<span class="required">*</span></label>
-              <input type="date" class="form-input" th:field="*{courseStartAt}" id="courseStartAt" onchange="calculateEndDate()" required>
-              <div th:if="${#fields.hasErrors('courseStartAt')}" th:errors="*{courseStartAt}" class="error-message"></div>
-            </div>
-          </div>
-
-          <div class="form-grid single">
-            <div class="form-group">
-              <label class="form-label">終了日<span class="required">*</span></label>
-              <input type="date" class="form-input" th:field="*{courseEndAt}" id="courseEndAt" required>
-              <div class="note">コース選択と開始日から自動で計算されます</div>
-              <div th:if="${#fields.hasErrors('courseEndAt')}" th:errors="*{courseEndAt}" class="error-message"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <div class="section-title">備考・その他</div>
-
-          <div class="form-grid single">
-            <div class="form-group">
-              <label class="form-label">備考</label>
-              <textarea class="form-textarea" th:field="*{remark}" placeholder="特記事項があれば入力してください"></textarea>
-              <div th:if="${#fields.hasErrors('remark')}" th:errors="*{remark}" class="error-message"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-actions">
-        <a href="/studentList" class="btn btn-secondary">学生一覧</a>
-        <a href="/courseList" class="btn btn-secondary">コース一覧</a>
-        <button type="submit" class="btn btn-success">登録完了</button>
-      </div>
-    </form>
+  <div>
+    <label>カナ名*</label><br>
+    <input type="text" th:field="*{kanaName}" required>
+    <div th:if="${#fields.hasErrors('kanaName')}" th:errors="*{kanaName}"></div>
   </div>
-</div>
 
-<script th:src="@{/js/register-student.js}"></script>
+  <div>
+    <label>ニックネーム</label><br>
+    <input type="text" th:field="*{nickname}">
+  </div>
+
+  <div>
+    <label>メールアドレス*</label><br>
+    <input type="email" th:field="*{email}" required>
+    <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+  </div>
+
+  <div>
+    <label>地域*</label><br>
+    <input type="text" th:field="*{area}" required>
+    <div th:if="${#fields.hasErrors('area')}" th:errors="*{area}"></div>
+  </div>
+
+  <div>
+    <label>年齢*</label><br>
+    <input type="number" th:field="*{age}" required>
+    <div th:if="${#fields.hasErrors('age')}" th:errors="*{age}"></div>
+  </div>
+
+  <div>
+    <label>性別*</label><br>
+    <select th:field="*{sex}" required>
+      <option value="">選択してください</option>
+      <option value="男性">男性</option>
+      <option value="女性">女性</option>
+      <option value="その他">その他</option>
+    </select>
+    <div th:if="${#fields.hasErrors('sex')}" th:errors="*{sex}"></div>
+  </div>
+
+  <div>
+    <label>コース名*</label><br>
+    <select th:field="*{courseName}" required>
+      <option value="">選択してください</option>
+      <option value="Java入門">Java入門</option>
+      <option value="Spring実践">Spring実践</option>
+      <option value="Webアプリ開発">Webアプリ開発</option>
+    </select>
+    <div th:if="${#fields.hasErrors('courseName')}" th:errors="*{courseName}"></div>
+  </div>
+
+  <div>
+    <label>開始日*</label><br>
+    <input type="date" th:field="*{courseStartAt}" required>
+    <div th:if="${#fields.hasErrors('courseStartAt')}" th:errors="*{courseStartAt}"></div>
+  </div>
+
+  <div>
+    <label>終了日*</label><br>
+    <input type="date" th:field="*{courseEndAt}" required>
+    <div th:if="${#fields.hasErrors('courseEndAt')}" th:errors="*{courseEndAt}"></div>
+  </div>
+
+  <div>
+    <label>備考</label><br>
+    <textarea th:field="*{remark}" rows="3"></textarea>
+  </div>
+
+  <div>
+    <button type="submit">登録</button>
+    <a href="/studentList">戻る</a>
+  </div>
+</form>
+
+<script>
+  // 多重送信防止（全POSTフォーム適用）
+  function disableSubmitButton(form) {
+    const submitButton = form.querySelector('button[type="submit"]');
+    setTimeout(() => {
+      submitButton.disabled = true;
+      submitButton.textContent = '登録中...';
+    }, 100);
+    return true;
+  }
+</script>
 </body>
 </html>
