@@ -1,20 +1,19 @@
 package raisetech.StudentManagement.controller;
 
 import jakarta.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import raisetech.StudentManagement.controller.converter.StudentConverter;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentsCourses;
@@ -25,7 +24,8 @@ import raisetech.StudentManagement.service.StudentService;
 /**
  * 学生管理コントローラー
  */
-@Controller
+@RestController
+@RequestMapping("/api")
 public class StudentController {
 
   private static final Logger logger = LoggerFactory.getLogger(StudentController.class);
@@ -37,10 +37,10 @@ public class StudentController {
   private StudentConverter converter;
 
   /**
-   * 学生一覧表示（N+1完全回避）
+   * 学生一覧表示
    */
-  @GetMapping("/studentList")
-  public String studentList(Model model) {
+  @GetMapping("/students")
+  public ResponseEntity<List<StudentDetail>> getStudents() {
     try {
       logger.info("学生一覧画面アクセス");
 
@@ -51,139 +51,130 @@ public class StudentController {
       // Converterで結合（O(S + C)）
       List<StudentDetail> studentDetails = converter.toDetails(students, courses);
 
-      model.addAttribute("studentList", studentDetails);
-      logger.info("学生一覧表示完了: {}件", studentDetails.size());
+      logger.info("REST API: 学生一覧表示完了: {}件", studentDetails.size());
+      return ResponseEntity.ok(studentDetails);
 
-      return "studentList";
     } catch (Exception e) {
-      logger.error("学生一覧取得エラー", e);
-      model.addAttribute("errorMessage", "学生一覧の取得に失敗しました。管理者にお問い合わせください。");
-      model.addAttribute("studentList", new ArrayList<>());
-      return "studentList";
+      logger.error("REST API: 学生一覧取得エラー", e);
+      return ResponseEntity.internalServerError().build();
     }
   }
 
   /**
    * コース一覧表示
    */
-  @GetMapping("/courseList")
-  public String courseList(Model model) {
+  @GetMapping("/course")
+  public ResponseEntity<List<StudentsCourses>> getCourses() {
     try {
-      logger.info("コース一覧画面アクセス");
+      logger.info("REST API: コース一覧取得");
       List<StudentsCourses> courses = service.getCourses();
-      model.addAttribute("courseList", courses);
-      return "courseList";
+      return ResponseEntity.ok(courses);
     } catch (Exception e) {
-      logger.error("コース一覧取得エラー", e);
-      model.addAttribute("errorMessage", "コース一覧の取得に失敗しました。管理者にお問い合わせください。");
-      model.addAttribute("courseList", new ArrayList<>());
-      return "courseList";
+      logger.error("REST API: コース一覧取得エラー", e);
+      return ResponseEntity.internalServerError().build();
     }
   }
 
   /**
-   * 新規登録画面表示
+   * 特定学生取得
    */
-  @GetMapping("/newStudent")
-  public String newStudent(Model model) {
-    logger.info("新規登録画面アクセス");
-    model.addAttribute("studentForm", new StudentForm());
-    return "registerStudent";
+  @GetMapping("/students/{id}")
+  public ResponseEntity<StudentForm> getStudent(@PathVariable int id) {
+    try {
+      logger.info("REST API: 学生詳細取得: ID={}", id);
+      StudentForm form = service.getStudentForm(id);
+      return ResponseEntity.ok(form);
+    } catch (Exception e) {
+      logger.error("REST API: 学生詳細取得エラー: ID=" + id, e);
+      return ResponseEntity.notFound().build();  // 404 Not Found
+    }
   }
+
 
   /**
    * 学生新規登録処理
    */
-  @PostMapping("/registerStudent")
-  public String registerStudent(@Valid @ModelAttribute StudentForm form,
-      BindingResult bindingResult,
-      RedirectAttributes redirectAttributes) {
-    logger.info("学生登録処理開始: {}", form.getName());
-
-    if (bindingResult.hasErrors()) {
-      logger.warn("バリデーションエラー: {}", bindingResult.getAllErrors());
-      return "registerStudent";
-    }
-
+  @PostMapping("/students")
+  public ResponseEntity<ApiResponse> createStudent(@Valid @RequestBody StudentForm form) {
     try {
+      logger.info("REST API: 学生登録: {}", form.getName());
+
       service.registerStudent(form);
-      redirectAttributes.addFlashAttribute("successMessage", "学生を登録しました");
-      logger.info("学生登録成功: {}", form.getName());
-    } catch (Exception e) {
-      logger.error("学生登録エラー: " + form.getName(), e);
-      redirectAttributes.addFlashAttribute("errorMessage", "登録に失敗しました");
-    }
 
-    return "redirect:/studentList";
-  }
+      ApiResponse response = new ApiResponse("success", "学生を登録しました", form.getName());
+      logger.info("REST API: 学生登録成功: {}", form.getName());
+      return ResponseEntity.ok(response);
 
-  /**
-   * 学生編集画面表示
-   */
-  @GetMapping("/student/{id}/edit")
-  public String editStudent(@PathVariable int id, Model model,
-      RedirectAttributes redirectAttributes) {
-    try {
-      logger.info("編集画面アクセス: ID={}", id);
-      StudentForm form = service.getStudentForm(id);
-      model.addAttribute("studentForm", form);
-      return "edit";
     } catch (Exception e) {
-      logger.error("学生詳細取得エラー: ID=" + id, e);
-      redirectAttributes.addFlashAttribute("errorMessage", "学生情報の取得に失敗しました");
-      return "redirect:/studentList";
+      logger.error("REST API: 学生登録エラー: " + form.getName(), e);
+      ApiResponse response = new ApiResponse("error", "登録に失敗しました", null);
+      return ResponseEntity.badRequest().body(response);  // 400エラー
     }
   }
 
   /**
-   * 学生情報更新処理
+   * 学生情報更新
    */
-  @PostMapping("/student/update")
-  public String updateStudent(@Valid @ModelAttribute StudentForm form,
-      BindingResult bindingResult,
-      RedirectAttributes redirectAttributes) {
-    logger.info("学生更新処理開始: ID={}", form.getId());
-
-    if (bindingResult.hasErrors()) {
-      logger.warn("バリデーションエラー: ID={}", form.getId());
-      return "edit";
-    }
-
+  @PutMapping("/students/{id}")
+  public ResponseEntity<ApiResponse> updateStudent(@PathVariable int id,
+      @Valid @RequestBody StudentForm form) {
     try {
+      logger.info("REST API: 学生更新: ID={}", id);
+
+      form.setId(id);  // URLのIDをフォームに設定
       service.updateStudent(form);
-      redirectAttributes.addFlashAttribute("successMessage", "学生情報を更新しました");
-      logger.info("学生更新成功: ID={}", form.getId());
-    } catch (Exception e) {
-      logger.error("学生更新エラー: ID=" + form.getId(), e);
-      redirectAttributes.addFlashAttribute("errorMessage", "更新に失敗しました");
-    }
 
-    return "redirect:/studentList";
+      ApiResponse response = new ApiResponse("success", "学生情報を更新しました", form.getName());
+      logger.info("REST API: 学生更新成功: ID={}", id);
+      return ResponseEntity.ok(response);
+
+    } catch (Exception e) {
+      logger.error("REST API: 学生更新エラー: ID=" + id, e);
+      ApiResponse response = new ApiResponse("error", "更新に失敗しました", null);
+      return ResponseEntity.badRequest().body(response);
+    }
   }
+
 
   /**
    * 学生削除処理（ラジオボタン単一選択）
    */
-  @PostMapping("/student/delete")
-  public String deleteStudent(@RequestParam(value = "selectedId", required = false) Integer selectedId,
-      RedirectAttributes redirectAttributes) {
-    logger.info("学生削除処理開始: ID={}", selectedId);
-
-    if (selectedId == null) {
-      logger.warn("削除対象未選択");
-      redirectAttributes.addFlashAttribute("errorMessage", "削除する学生を選択してください");
-      return "redirect:/studentList";
-    }
+  @DeleteMapping("/students/{id}")
+  public ResponseEntity<ApiResponse> deleteStudent(@PathVariable int id) {
 
     try {
-      service.deleteStudent(selectedId);
-      redirectAttributes.addFlashAttribute("successMessage", "学生を削除しました");
-      logger.info("学生削除成功: ID={}", selectedId);
+      logger.info("学生削除成功: ID={}", id);
+
+      service.deleteStudent(id);
+
+      ApiResponse response = new ApiResponse("success", "学生を削除しました", String.valueOf(id));
+      logger.info("REST API: 学生削除成功: ID={}" , id);
+      return ResponseEntity.ok(response);
+
     } catch (Exception e) {
-      logger.error("学生削除エラー: ID=" + selectedId, e);
-      redirectAttributes.addFlashAttribute("errorMessage", "削除に失敗しました");
+      logger.error("REST API :学生削除エラー: ID=" + id, e);
+      ApiResponse response = new ApiResponse("error", "削除に失敗しました", null);
+      return ResponseEntity.badRequest().body(response);
+    }
+  }
+
+  /**
+   * API レスポンス用クラス
+   */
+  public static class ApiResponse {
+    private String status;
+    private String message;
+    private String data;
+
+    public ApiResponse(String status, String message, String data) {
+      this.status = status;
+      this.message = message;
+      this.data = data;
     }
 
-    return "redirect:/studentList";
+    // Getter methods
+    public String getStatus() { return status; }
+    public String getMessage() { return message; }
+    public String getData() { return data; }
   }
 }
