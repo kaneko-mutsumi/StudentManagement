@@ -3,9 +3,9 @@ package raisetech.StudentManagement.domain;
 import lombok.Getter;
 import lombok.Setter;
 import raisetech.StudentManagement.data.Student;
-import raisetech.StudentManagement.data.StudentsCourses;
 import java.util.List;
 import java.util.ArrayList;
+import raisetech.StudentManagement.data.StudentsCourses;
 
 /**
  * 学生詳細情報（複数コース対応）

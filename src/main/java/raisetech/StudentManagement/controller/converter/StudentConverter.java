@@ -25,7 +25,7 @@ public class StudentConverter {
   public List<StudentDetail> toDetails(List<Student> students, List<StudentsCourses> courses) {
     // O(C): コースリストを学生IDでグループ化（studentId → List<StudentsCourses>）
     Map<Integer, List<StudentsCourses>> courseMap = courses.stream()
-        .collect(Collectors.groupingBy(StudentsCourses::getStudentId));
+        .collect(Collectors.groupingBy(raisetech.StudentManagement.data.StudentsCourses::getStudentId));
 
     // O(S): 学生ごとにコースリストを結合してStudentDetail生成
     return students.stream()
