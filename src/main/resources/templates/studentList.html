@@ -42,7 +42,7 @@
       <td>
         <!-- 複数コース表示（指示書準拠） -->
         <div th:if="${studentDetail.hasCourses()}">
-          <div th:each="course : ${studentDetail.studentsCourses}">
+          <div th:each="course : ${studentDetail.StudentCourse}">
             <strong th:text="${course.courseName}">Java入門</strong><br>
             <span th:text="${#temporals.format(course.courseStartAt, 'yyyy/MM/dd')}">2024/04/01</span>
             ～

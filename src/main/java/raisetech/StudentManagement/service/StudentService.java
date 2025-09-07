@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import raisetech.StudentManagement.data.Student;
-import raisetech.StudentManagement.data.StudentsCourses;
+import raisetech.StudentManagement.data.StudentCourse;
 import raisetech.StudentManagement.form.StudentForm;
 import raisetech.StudentManagement.repository.StudentRepository;
 
@@ -58,15 +58,15 @@ public class StudentService {
   /**
    * 全コース一覧取得
    *
-   * @return List<StudentsCourses> コースリスト
+   * @return List<StudentCourse> コースリスト
    * @throws RuntimeException システムエラーの場合
    */
   @Transactional(readOnly = true)
-  public List<StudentsCourses> getCourses() {
+  public List<StudentCourse> getCourses() {
     logger.info("コース一覧取得開始");
 
     try {
-      List<StudentsCourses> courses = repository.getAllCourses();
+      List<StudentCourse> courses = repository.getAllCourses();
       logger.info("コース一覧取得完了： 取得件数={}", courses.size());
       return courses;
 
@@ -99,8 +99,8 @@ public class StudentService {
       }
 
       // ステップ3: その学生のコース情報を取得
-      List<StudentsCourses> courses = repository.getCoursesByStudentId(id);
-      StudentsCourses primaryCourse = courses.isEmpty() ? null : courses.get(0);
+      List<StudentCourse> courses = repository.getCoursesByStudentId(id);
+      StudentCourse primaryCourse = courses.isEmpty() ? null : courses.get(0);
 
       // ステップ4: フォーム形式に変換
       StudentForm form = convertToForm(student, primaryCourse);
@@ -148,7 +148,7 @@ public class StudentService {
       }
 
       // ステップ2: コース情報の登録
-      StudentsCourses course = convertToCourse(form);
+      StudentCourse course = convertToCourse(form);
       course.setStudentId(student.getId());
       int courseRows = repository.saveCourse(course);
 
@@ -196,7 +196,7 @@ public class StudentService {
 
       // ステップ2: コース情報の更新（コースIDが指定されている場合のみ）
       if (form.getCourseId() != null) {
-        StudentsCourses course = convertToCourse(form);
+        StudentCourse course = convertToCourse(form);
         int courseRows = repository.updateCourse(course);
 
         if (courseRows != 1) {
@@ -257,7 +257,7 @@ public class StudentService {
    * @param course コースエンティティ（null可能）
    * @return StudentForm REST API応答用フォーム
    */
-  private StudentForm convertToForm(Student student, StudentsCourses course) {
+  private StudentForm convertToForm(Student student, StudentCourse course) {
     StudentForm form = new StudentForm();
 
     // 学生基本情報の設定
@@ -320,13 +320,13 @@ public class StudentService {
    * 変換目的：
    * - REST APIリクエスト形式（StudentForm）
    * - ↓
-   * - データベース保存形式（StudentsCourses）
+   * - データベース保存形式（StudentCourse）
    *
    * @param form REST APIからの入力データ
-   * @return StudentsCourses データベース保存用エンティティ
+   * @return StudentCourse データベース保存用エンティティ
    */
-  private StudentsCourses convertToCourse(StudentForm form) {
-    StudentsCourses course = new StudentsCourses();
+  private StudentCourse convertToCourse(StudentForm form) {
+    StudentCourse course = new StudentCourse();
 
     // 新規登録時はCourseIDがnull、更新時のみ設定
     if (form.getCourseId() != null) {

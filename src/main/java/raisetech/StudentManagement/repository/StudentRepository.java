@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import raisetech.StudentManagement.data.Student;
-import raisetech.StudentManagement.data.StudentsCourses;
+import raisetech.StudentManagement.data.StudentCourse;
 
 /**
  * 学生データベース操作
@@ -51,11 +51,11 @@ public interface StudentRepository {
       FROM students_courses 
       ORDER BY student_id, id
       """)
-  List<StudentsCourses> getAllCourses();
+  List<StudentCourse> getAllCourses();
 
   /**
    * 特定学生のコース情報を取得（複数コース対応）
-   * 戻り値：List<StudentsCourses>（指示書準拠）
+   * 戻り値：List<StudentCourse>（指示書準拠）
    */
   @Select("""
       SELECT 
@@ -68,7 +68,7 @@ public interface StudentRepository {
       WHERE student_id = #{studentId}
       ORDER BY id
       """)
-  List<StudentsCourses> getCoursesByStudentId(int studentId);
+  List<StudentCourse> getCoursesByStudentId(int studentId);
 
   /**
    * 学生情報を登録
@@ -87,7 +87,7 @@ public interface StudentRepository {
       INSERT INTO students_courses(student_id, course_name, course_start_at, course_end_at) 
       VALUES(#{studentId}, #{courseName}, #{courseStartAt}, #{courseEndAt})
       """)
-  int saveCourse(StudentsCourses course);
+  int saveCourse(StudentCourse course);
 
   /**
    * 学生情報を更新
@@ -109,7 +109,7 @@ public interface StudentRepository {
       SET course_name = #{courseName}, course_start_at = #{courseStartAt}, course_end_at = #{courseEndAt} 
       WHERE id = #{id}
       """)
-  int updateCourse(StudentsCourses course);
+  int updateCourse(StudentCourse course);
 
   /**
    * 学生を論理削除
