@@ -194,10 +194,14 @@ public class StudentService {
         throw new RuntimeException("更新対象の学生が見つかりません");
       }
 
-      // ステップ2: コース情報の更新（コースIDが指定されている場合のみ）
+// ステップ2: コース情報の更新（コースIDが指定されている場合のみ）
       if (form.getCourseId() != null) {
+        logger.info("受信したフォーム情報: courseId={}, courseName={}", form.getCourseId(), form.getCourseName());
+        logger.info("コース更新実行: コースID={}", form.getCourseId());
         StudentCourse course = convertToCourse(form);
+        logger.info("更新するコース情報: ID={}, コース名={}", course.getId(), course.getCourseName());
         int courseRows = repository.updateCourse(course);
+        logger.info("コース更新結果: {}件", courseRows);
 
         if (courseRows != 1) {
           logger.warn("コース更新対象が見つかりません: コースID={}", form.getCourseId());
