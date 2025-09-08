@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +27,7 @@ import raisetech.StudentManagement.service.StudentService;
  */
 @RestController
 @RequestMapping("/api")
+@Validated
 public class StudentController {
 
   private static final Logger logger = LoggerFactory.getLogger(StudentController.class);
@@ -76,20 +78,15 @@ public class StudentController {
   }
 
   /**
-   * 特定学生取得
+   * 特定学生取得 例外処理テスト用に修正
    */
   @GetMapping("/students/{id}")
   public ResponseEntity<StudentForm> getStudent(@PathVariable int id) {
-    try {
-      logger.info("REST API: 学生詳細取得: ID={}", id);
-      StudentForm form = service.getStudentForm(id);
-      return ResponseEntity.ok(form);
-    } catch (Exception e) {
-      logger.error("REST API: 学生詳細取得エラー: ID=" + id, e);
-      return ResponseEntity.notFound().build();  // 404 Not Found
-    }
-  }
+    logger.info("REST API: 学生詳細取得: ID={}", id);
 
+    StudentForm form = service.getStudentForm(id);
+    return ResponseEntity.ok(form);
+  }
 
   /**
    * 学生新規登録処理
@@ -148,7 +145,7 @@ public class StudentController {
       service.deleteStudent(id);
 
       ApiResponse response = new ApiResponse("success", "学生を削除しました", String.valueOf(id));
-      logger.info("REST API: 学生削除成功: ID={}" , id);
+      logger.info("REST API: 学生削除成功: ID={}", id);
       return ResponseEntity.ok(response);
 
     } catch (Exception e) {
@@ -162,6 +159,7 @@ public class StudentController {
    * API レスポンス用クラス
    */
   public static class ApiResponse {
+
     private String status;
     private String message;
     private String data;
@@ -173,8 +171,16 @@ public class StudentController {
     }
 
     // Getter methods
-    public String getStatus() { return status; }
-    public String getMessage() { return message; }
-    public String getData() { return data; }
+    public String getStatus() {
+      return status;
+    }
+
+    public String getMessage() {
+      return message;
+    }
+
+    public String getData() {
+      return data;
+    }
   }
 }
