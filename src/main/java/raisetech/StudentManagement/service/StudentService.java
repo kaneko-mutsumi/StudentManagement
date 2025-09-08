@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
+import raisetech.StudentManagement.exception.TestException;
 import raisetech.StudentManagement.form.StudentForm;
 import raisetech.StudentManagement.repository.StudentRepository;
 
@@ -85,6 +86,11 @@ public class StudentService {
    */
   @Transactional(readOnly = true)
   public StudentForm getStudentForm(int id) {
+    // テスト用：Service層での例外発生
+    if (id == 999) {
+      throw new TestException("Service層でのテストエラー：ID 999は特殊なテストIDです");
+    }
+
     logger.info("学生詳細取得開始: ID={}", id);
 
     try {
@@ -107,11 +113,12 @@ public class StudentService {
 
       logger.info("学生詳細取得完了: ID={}, コース数={}", id, courses.size());
       return form;
+
     } catch (RuntimeException e) {
       // ビジネス例外（学生未発見など）はそのまま再スロー
       throw e;
     } catch (Exception e) {
-      logger.error("学生詳細取得でシステムエラーが発生:ID={}, id, e");
+      logger.error("学生詳細取得でシステムエラーが発生: ID={}", id, e);
       throw new RuntimeException("学生情報の取得に失敗しました", e);
     }
   }
