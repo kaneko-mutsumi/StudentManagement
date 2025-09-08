@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import java.util.ArrayList;
 import org.springframework.stereotype.Component;
 import raisetech.StudentManagement.data.Student;
-import raisetech.StudentManagement.data.StudentsCourses;
+import raisetech.StudentManagement.data.StudentCourse;
 import raisetech.StudentManagement.domain.StudentDetail;
 
 /**
@@ -20,12 +20,12 @@ public class StudentConverter {
    *
    * @param students 学生リスト（S件）
    * @param courses コースリスト（C件）
-   * @return StudentDetailリスト（各StudentDetailはList<StudentsCourses>を保持）
+   * @return StudentDetailリスト（各StudentDetailはList<StudentCourse>を保持）
    */
-  public List<StudentDetail> toDetails(List<Student> students, List<StudentsCourses> courses) {
-    // O(C): コースリストを学生IDでグループ化（studentId → List<StudentsCourses>）
-    Map<Integer, List<StudentsCourses>> courseMap = courses.stream()
-        .collect(Collectors.groupingBy(StudentsCourses::getStudentId));
+  public List<StudentDetail> toDetails(List<Student> students, List<StudentCourse> courses) {
+    // O(C): コースリストを学生IDでグループ化（studentId → List<StudentCourse>）
+    Map<Integer, List<StudentCourse>> courseMap = courses.stream()
+        .collect(Collectors.groupingBy(raisetech.StudentManagement.data.StudentCourse::getStudentId));
 
     // O(S): 学生ごとにコースリストを結合してStudentDetail生成
     return students.stream()
@@ -40,12 +40,12 @@ public class StudentConverter {
    * @param courses コースリスト（nullの場合は空Listを設定）
    * @return StudentDetail
    */
-  private StudentDetail createStudentDetail(Student student, List<StudentsCourses> courses) {
+  private StudentDetail createStudentDetail(Student student, List<StudentCourse> courses) {
     StudentDetail detail = new StudentDetail();
     detail.setStudent(student);
 
     // Null安全：コースが無い場合は空Listを設定
-    detail.setStudentsCourses(courses != null ? courses : new ArrayList<>());
+    detail.setStudentCourse(courses != null ? courses : new ArrayList<>());
 
     return detail;
   }

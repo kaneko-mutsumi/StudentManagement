@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public class StudentsCourses {
+public class StudentCourse {
 
   private Integer id;
   private int studentId;
@@ -14,6 +14,6 @@ public class StudentsCourses {
   private LocalDate courseStartAt;
   private LocalDate courseEndAt;
 
-  public StudentsCourses() {
+  public StudentCourse() {
   }
 }

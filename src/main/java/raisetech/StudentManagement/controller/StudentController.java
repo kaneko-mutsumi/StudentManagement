@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import raisetech.StudentManagement.controller.converter.StudentConverter;
 import raisetech.StudentManagement.data.Student;
-import raisetech.StudentManagement.data.StudentsCourses;
+import raisetech.StudentManagement.data.StudentCourse;
 import raisetech.StudentManagement.domain.StudentDetail;
 import raisetech.StudentManagement.form.StudentForm;
 import raisetech.StudentManagement.service.StudentService;
@@ -46,7 +46,7 @@ public class StudentController {
 
       // 2クエリでデータ取得
       List<Student> students = service.getStudents();
-      List<StudentsCourses> courses = service.getCourses();
+      List<StudentCourse> courses = service.getCourses();
 
       // Converterで結合（O(S + C)）
       List<StudentDetail> studentDetails = converter.toDetails(students, courses);
@@ -64,10 +64,10 @@ public class StudentController {
    * コース一覧表示
    */
   @GetMapping("/course")
-  public ResponseEntity<List<StudentsCourses>> getCourses() {
+  public ResponseEntity<List<StudentCourse>> getCourses() {
     try {
       logger.info("REST API: コース一覧取得");
-      List<StudentsCourses> courses = service.getCourses();
+      List<StudentCourse> courses = service.getCourses();
       return ResponseEntity.ok(courses);
     } catch (Exception e) {
       logger.error("REST API: コース一覧取得エラー", e);
