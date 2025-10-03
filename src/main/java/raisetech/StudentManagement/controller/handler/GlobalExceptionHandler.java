@@ -4,8 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import raisetech.StudentManagement.exception.ResourceNotFoundException;
 import raisetech.StudentManagement.exception.TestException;
 
@@ -13,7 +13,7 @@ import raisetech.StudentManagement.exception.TestException;
  * アプリケーション全体の共通例外ハンドラー
  * 全てのControllerで発生した例外をここで一元的に処理する
  */
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
   private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);

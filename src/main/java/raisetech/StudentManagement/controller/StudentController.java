@@ -143,7 +143,8 @@ public class StudentController {
   @Operation(summary = "学生情報更新", description = "指定されたIDの学生情報を更新します")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "更新成功"),
-      @ApiResponse(responseCode = "400", description = "入力内容エラーまたは更新対象が見つかりません")
+      @ApiResponse(responseCode = "400", description = "入力内容エラー"),
+      @ApiResponse(responseCode = "404", description = "更新対象が見つかりません")
   })
   @PutMapping("/students/{id}")
   public ResponseEntity<StudentApiResponse> updateStudent(@PathVariable int id,
@@ -172,7 +173,7 @@ public class StudentController {
   @Operation(summary = "学生削除", description = "指定されたIDの学生を論理削除します")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "削除成功"),
-      @ApiResponse(responseCode = "400", description = "削除対象が見つかりません")
+      @ApiResponse(responseCode = "404", description = "削除対象が見つかりません")
   })
   @DeleteMapping("/students/{id}")
   public ResponseEntity<StudentApiResponse> deleteStudent(@PathVariable int id) {
