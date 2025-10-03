@@ -1,14 +1,15 @@
 package raisetech.StudentManagement.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,6 +25,7 @@ import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
 import raisetech.StudentManagement.domain.StudentDetail;
 import raisetech.StudentManagement.form.StudentForm;
+import raisetech.StudentManagement.response.StudentApiResponse;
 import raisetech.StudentManagement.service.StudentService;
 
 /**
@@ -80,7 +82,7 @@ public class StudentController {
       @ApiResponse(responseCode = "200", description = "成功"),
       @ApiResponse(responseCode = "500", description = "サーバーエラー")
   })
-  @GetMapping("/course")
+  @GetMapping("/courses")
   public ResponseEntity<List<StudentCourse>> getCourses() {
     try {
       logger.info("REST API: コース一覧取得");
@@ -114,7 +116,7 @@ public class StudentController {
    */
   @Operation(summary = "学生新規登録", description = "新しい学生とコース情報を登録します")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "登録成功"),
+      @ApiResponse(responseCode = "201", description = "登録成功"),
       @ApiResponse(responseCode = "400", description = "入力内容エラー")
   })
   @PostMapping("/students")
@@ -126,7 +128,7 @@ public class StudentController {
 
       StudentApiResponse response = new StudentApiResponse("success", "学生を登録しました", form.getName());
       logger.info("REST API: 学生登録成功: {}", form.getName());
-      return ResponseEntity.ok(response);
+      return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
     } catch (Exception e) {
       logger.error("REST API: 学生登録エラー: " + form.getName(), e);
@@ -176,7 +178,7 @@ public class StudentController {
   public ResponseEntity<StudentApiResponse> deleteStudent(@PathVariable int id) {
 
     try {
-      logger.info("学生削除成功: ID={}", id);
+      logger.info("REST API: 学生削除開始: ID={}", id);
 
       service.deleteStudent(id);
 
@@ -188,35 +190,6 @@ public class StudentController {
       logger.error("REST API :学生削除エラー: ID=" + id, e);
       StudentApiResponse response = new StudentApiResponse("error", "削除に失敗しました", null);
       return ResponseEntity.badRequest().body(response);
-    }
-  }
-
-  /**
-   * API レスポンス用クラス
-   */
-  public static class StudentApiResponse {
-
-    private String status;
-    private String message;
-    private String data;
-
-    public StudentApiResponse(String status, String message, String data) {
-      this.status = status;
-      this.message = message;
-      this.data = data;
-    }
-
-    // Getter methods
-    public String getStatus() {
-      return status;
-    }
-
-    public String getMessage() {
-      return message;
-    }
-
-    public String getData() {
-      return data;
     }
   }
 }

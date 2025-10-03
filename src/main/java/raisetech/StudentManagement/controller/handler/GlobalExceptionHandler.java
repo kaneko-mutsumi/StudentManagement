@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import raisetech.StudentManagement.exception.ResourceNotFoundException;
 import raisetech.StudentManagement.exception.TestException;
 
 /**
@@ -38,6 +39,30 @@ public class GlobalExceptionHandler {
     // 400 Bad Request として返す
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
+
+  /**
+   * ResourceNotFoundException専用ハンドラー
+   * リソース（学生など）が見つからない場合の処理
+   *
+   * @param e ResourceNotFoundException
+   * @return エラーレスポンス（404）
+   */
+  @ExceptionHandler(ResourceNotFoundException.class)
+  public ResponseEntity<GlobalErrorResponse> handleResourceNotFoundException(
+      ResourceNotFoundException e) {
+    logger.warn("【グローバル】リソースが見つかりません: {}", e.getMessage());
+
+    GlobalErrorResponse response = new GlobalErrorResponse(
+        "error",
+        "リソースが見つかりません",
+        e.getMessage(),
+        "ResourceNotFoundException"
+    );
+
+    // 404 Not Found として返す
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+  }
+
 
   /**
    * その他の予期しない例外の共通処理
