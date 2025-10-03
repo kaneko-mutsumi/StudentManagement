@@ -34,7 +34,7 @@ import raisetech.StudentManagement.service.StudentService;
 @RestController
 @RequestMapping("/api")
 @Validated
-@Tag(name ="学生管理", description = "学生情報とコース情報の管理API")
+@Tag(name = "学生管理", description = "学生情報とコース情報の管理API")
 public class StudentController {
 
   private static final Logger logger = LoggerFactory.getLogger(StudentController.class);
@@ -121,20 +121,12 @@ public class StudentController {
   })
   @PostMapping("/students")
   public ResponseEntity<StudentApiResponse> createStudent(@Valid @RequestBody StudentForm form) {
-    try {
-      logger.info("REST API: 学生登録: {}", form.getName());
-
-      service.registerStudent(form);
-
-      StudentApiResponse response = new StudentApiResponse("success", "学生を登録しました", form.getName());
-      logger.info("REST API: 学生登録成功: {}", form.getName());
-      return ResponseEntity.status(HttpStatus.CREATED).body(response);
-
-    } catch (Exception e) {
-      logger.error("REST API: 学生登録エラー: " + form.getName(), e);
-      StudentApiResponse response = new StudentApiResponse("error", "登録に失敗しました", null);
-      return ResponseEntity.badRequest().body(response);  // 400エラー
-    }
+    logger.info("REST API: 学生登録開始: {}", form.getName());
+    service.registerStudent(form);
+    StudentApiResponse response = new StudentApiResponse("success", "学生を登録しました",
+        form.getName());
+    logger.info("REST API: 学生登録成功: {}", form.getName());
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
   /**
@@ -149,21 +141,13 @@ public class StudentController {
   @PutMapping("/students/{id}")
   public ResponseEntity<StudentApiResponse> updateStudent(@PathVariable int id,
       @Valid @RequestBody StudentForm form) {
-    try {
-      logger.info("REST API: 学生更新: ID={}", id);
-
-      form.setId(id);  // URLのIDをフォームに設定
-      service.updateStudent(form);
-
-      StudentApiResponse response = new StudentApiResponse("success", "学生情報を更新しました", form.getName());
-      logger.info("REST API: 学生更新成功: ID={}", id);
-      return ResponseEntity.ok(response);
-
-    } catch (Exception e) {
-      logger.error("REST API: 学生更新エラー: ID=" + id, e);
-      StudentApiResponse response = new StudentApiResponse("error", "更新に失敗しました", null);
-      return ResponseEntity.badRequest().body(response);
-    }
+    logger.info("REST API: 学生更新開始: ID={}", id);
+    form.setId(id);
+    service.updateStudent(form);
+    StudentApiResponse response = new StudentApiResponse("success", "学生情報を更新しました",
+        form.getName());
+    logger.info("REST API: 学生更新成功: ID={}", id);
+    return ResponseEntity.ok(response);
   }
 
 
@@ -177,20 +161,11 @@ public class StudentController {
   })
   @DeleteMapping("/students/{id}")
   public ResponseEntity<StudentApiResponse> deleteStudent(@PathVariable int id) {
-
-    try {
-      logger.info("REST API: 学生削除開始: ID={}", id);
-
-      service.deleteStudent(id);
-
-      StudentApiResponse response = new StudentApiResponse("success", "学生を削除しました", String.valueOf(id));
-      logger.info("REST API: 学生削除成功: ID={}", id);
-      return ResponseEntity.ok(response);
-
-    } catch (Exception e) {
-      logger.error("REST API :学生削除エラー: ID=" + id, e);
-      StudentApiResponse response = new StudentApiResponse("error", "削除に失敗しました", null);
-      return ResponseEntity.badRequest().body(response);
-    }
+    logger.info("REST API: 学生削除開始: ID={}", id);
+    service.deleteStudent(id);
+    StudentApiResponse response = new StudentApiResponse("success", "学生を削除しました",
+        String.valueOf(id));
+    logger.info("REST API: 学生削除成功: ID={}", id);
+    return ResponseEntity.ok(response);
   }
 }
