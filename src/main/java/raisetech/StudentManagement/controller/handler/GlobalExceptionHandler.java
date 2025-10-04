@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import raisetech.StudentManagement.exception.ResourceNotFoundException;
@@ -63,6 +64,35 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
   }
 
+  /**
+   * MethodArgumentNotValidException専用ハンドラー
+   * @Valid によるバリデーション失敗時の処理
+   *
+   * @param e MethodArgumentNotValidException
+   * @return エラーレスポンス（400）
+   */
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<GlobalErrorResponse> handleMethodArgumentNotValidException(
+      MethodArgumentNotValidException e) {
+
+    // バリデーションエラーの詳細を取得
+    String errorDetails = e.getBindingResult().getFieldErrors().stream()
+        .map(error -> error.getField() + ": " + error.getDefaultMessage())
+        .reduce((a, b) -> a + ", " + b)
+        .orElse("入力内容に誤りがあります");
+
+    logger.warn("【グローバル】バリデーションエラー: {}", errorDetails);
+
+    GlobalErrorResponse response = new GlobalErrorResponse(
+        "error",
+        "入力内容に誤りがあります",
+        errorDetails,
+        "MethodArgumentNotValidException"
+    );
+
+    // 400 Bad Request として返す
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+  }
 
   /**
    * その他の予期しない例外の共通処理
