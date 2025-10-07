@@ -156,8 +156,8 @@ public class StudentService {
       int courseRows = repository.saveCourse(course);
 
       // 更新件数の検証（1件登録されることを期待）
-      if (studentRows != 1) {
-        logger.error("学生登録で予期しない更新件数: 期待=1, 実際={}", studentRows);
+      if (courseRows != 1) {
+        logger.error("コース登録で予期しない更新件数: 期待=1, 実際={}", courseRows);
         throw new RuntimeException("学生登録に失敗しました");
       }
 
