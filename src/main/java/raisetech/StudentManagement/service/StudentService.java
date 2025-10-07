@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
+import raisetech.StudentManagement.exception.ResourceNotFoundException;
 import raisetech.StudentManagement.form.StudentForm;
 import raisetech.StudentManagement.repository.StudentRepository;
 
@@ -85,6 +86,7 @@ public class StudentService {
    */
   @Transactional(readOnly = true)
   public StudentForm getStudentForm(int id) {
+
     logger.info("学生詳細取得開始: ID={}", id);
 
     try {
@@ -95,7 +97,7 @@ public class StudentService {
       if (student == null) {
         logger.warn("学生が見つかりません: ID={}", id);
         // コントローラーで404に変換される
-        throw new RuntimeException("学生が見つかりません: ID=" + id);
+        throw new ResourceNotFoundException("学生が見つかりません: ID=" + id);
       }
 
       // ステップ3: その学生のコース情報を取得
@@ -107,11 +109,12 @@ public class StudentService {
 
       logger.info("学生詳細取得完了: ID={}, コース数={}", id, courses.size());
       return form;
+
     } catch (RuntimeException e) {
       // ビジネス例外（学生未発見など）はそのまま再スロー
       throw e;
     } catch (Exception e) {
-      logger.error("学生詳細取得でシステムエラーが発生:ID={}, id, e");
+      logger.error("学生詳細取得でシステムエラーが発生: ID={}", id, e);
       throw new RuntimeException("学生情報の取得に失敗しました", e);
     }
   }
@@ -191,15 +194,17 @@ public class StudentService {
       // 更新結果の確認（REST APIでは更新対象なしもエラー扱い）
       if (studentRows != 1) {
         logger.warn("学生更新対象が見つかりません: ID={}", form.getId());
-        throw new RuntimeException("更新対象の学生が見つかりません");
+        throw new ResourceNotFoundException("学生が見つかりません: ID=" + form.getId());
       }
 
 // ステップ2: コース情報の更新（コースIDが指定されている場合のみ）
       if (form.getCourseId() != null) {
-        logger.info("受信したフォーム情報: courseId={}, courseName={}", form.getCourseId(), form.getCourseName());
+        logger.info("受信したフォーム情報: courseId={}, courseName={}", form.getCourseId(),
+            form.getCourseName());
         logger.info("コース更新実行: コースID={}", form.getCourseId());
         StudentCourse course = convertToCourse(form);
-        logger.info("更新するコース情報: ID={}, コース名={}", course.getId(), course.getCourseName());
+        logger.info("更新するコース情報: ID={}, コース名={}", course.getId(),
+            course.getCourseName());
         int courseRows = repository.updateCourse(course);
         logger.info("コース更新結果: {}件", courseRows);
 
@@ -236,7 +241,7 @@ public class StudentService {
       // 削除結果の確認
       if (rows != 1) {
         logger.warn("削除対象の学生が見つかりません: ID={}", id);
-        throw new RuntimeException("削除対象の学生が見つかりません");
+        throw new ResourceNotFoundException("学生が見つかりません: ID=" + id);
       }
 
       logger.info("学生削除完了: 対象ID={}", id);
@@ -258,7 +263,7 @@ public class StudentService {
    * 学生情報とコース情報をフォーム形式に変換
    *
    * @param student 学生エンティティ
-   * @param course コースエンティティ（null可能）
+   * @param course  コースエンティティ（null可能）
    * @return StudentForm REST API応答用フォーム
    */
   private StudentForm convertToForm(Student student, StudentCourse course) {
@@ -288,11 +293,8 @@ public class StudentService {
 
   /**
    * フォーム情報を学生エンティティに変換
-   *
-   * 変換目的：
-   * - REST APIリクエスト形式（StudentForm）
-   * - ↓
-   * - データベース保存形式（Student）
+   * <p>
+   * 変換目的： - REST APIリクエスト形式（StudentForm） - ↓ - データベース保存形式（Student）
    *
    * @param form REST APIからの入力データ
    * @return Student データベース保存用エンティティ
@@ -320,11 +322,8 @@ public class StudentService {
 
   /**
    * フォーム情報をコースエンティティに変換
-   *
-   * 変換目的：
-   * - REST APIリクエスト形式（StudentForm）
-   * - ↓
-   * - データベース保存形式（StudentCourse）
+   * <p>
+   * 変換目的： - REST APIリクエスト形式（StudentForm） - ↓ - データベース保存形式（StudentCourse）
    *
    * @param form REST APIからの入力データ
    * @return StudentCourse データベース保存用エンティティ
