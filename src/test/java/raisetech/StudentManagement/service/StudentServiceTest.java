@@ -1,5 +1,6 @@
 package raisetech.StudentManagement.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doAnswer;
@@ -9,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -51,9 +53,13 @@ class StudentServiceTest {
     // 実行：registerStudentメソッドを呼ぶ
     sut.registerStudent(form);
 
-    // 検証：repositoryのメソッドが呼ばれたか確認
-    verify(repository, times(1)).saveStudent(any(Student.class));
-    verify(repository, times(1)).saveCourse(any(StudentCourse.class));
+    // 検証：ArgumentCaptorで値検証
+    ArgumentCaptor<Student> captor = ArgumentCaptor.forClass(Student.class);
+    verify(repository).saveStudent(captor.capture());
+    Student captured = captor.getValue();
+    assertEquals("テスト太郎", captured.getName());
+    assertEquals("test@example.com", captured.getEmail());
+    assertEquals(20, captured.getAge());
   }
 
   @Test
@@ -61,8 +67,8 @@ class StudentServiceTest {
     // 準備：nullを用意
     StudentForm form = null;
 
-    // 実行と検証：RuntimeExceptionが発生することを確認
-    assertThrows(RuntimeException.class, () -> {
+    // 実行と検証：IllegalArgumentExceptionが発生することを確認
+    assertThrows(IllegalArgumentException.class, () -> {
       sut.registerStudent(form);
     });
   }
@@ -86,7 +92,7 @@ class StudentServiceTest {
       return 0;  // 失敗を表す0を返す
     }).when(repository).saveStudent(any(Student.class));
 
-    // 実行と検証：RuntimeExceptionが発生することを確認
+    // 検証
     assertThrows(RuntimeException.class, () -> {
       sut.registerStudent(form);
     });
@@ -172,9 +178,11 @@ class StudentServiceTest {
     // 実行：updateStudentメソッドを呼ぶ
     sut.updateStudent(form);
 
-    // 検証：repositoryのメソッドが呼ばれたか確認
-    verify(repository, times(1)).updateStudent(any(Student.class));
-    verify(repository, times(1)).updateCourse(any(StudentCourse.class));
+    // 値検証
+    ArgumentCaptor<Student> captor = ArgumentCaptor.forClass(Student.class);
+    verify(repository).updateStudent(captor.capture());
+    assertEquals("更新太郎", captor.getValue().getName());
+    assertEquals(1, captor.getValue().getId());
   }
 
   @Test
@@ -205,7 +213,18 @@ class StudentServiceTest {
     StudentForm form = null;
 
     // 実行と検証：RuntimeExceptionが発生することを確認
-    assertThrows(RuntimeException.class, () -> {
+    assertThrows(IllegalArgumentException.class, () -> {
+      sut.updateStudent(null);
+    });
+  }
+
+  @Test
+  void 更新時にIDがnullの場合_エラーが発生すること() {
+    StudentForm form = new StudentForm();
+    form.setName("テスト");
+    // IDなし
+
+    assertThrows(IllegalArgumentException.class, () -> {
       sut.updateStudent(form);
     });
   }

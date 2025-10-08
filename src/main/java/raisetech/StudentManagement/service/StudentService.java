@@ -128,12 +128,13 @@ public class StudentService {
    * 学生新規登録
    *
    * @param form 登録する学生情報
-   * @throws RuntimeException 登録処理でエラーが発生した場合
+   * @throws IllegalArgumentException formがnullの場合
+   * @throws RuntimeException         登録失敗時
    */
   public void registerStudent(StudentForm form) {
     // 入力チェック
     if (form == null) {
-      throw new RuntimeException("学生情報が入力されていません");
+      throw new IllegalArgumentException("学生情報が入力されていません");
     }
 
     logger.info("学生登録開始: 名前={}", form.getName());
@@ -176,12 +177,14 @@ public class StudentService {
    * 既存学生の情報を更新
    *
    * @param form 更新する学生情報（IDは必須）
-   * @throws RuntimeException 更新処理でエラーが発生した場合
+   * @throws IllegalArgumentException formまたはIDがnullの場合
+   * @throws ResourceNotFoundException 更新対象なし
+   * @throws RuntimeException システムエラー
    */
   public void updateStudent(StudentForm form) {
     // 入力チェック
     if (form == null || form.getId() == null) {
-      throw new RuntimeException("更新対象の学生IDが指定されていません");
+      throw new IllegalArgumentException("更新対象の学生IDが指定されていません");
     }
 
     logger.info("学生更新開始: 対象ID={}", form.getId());
