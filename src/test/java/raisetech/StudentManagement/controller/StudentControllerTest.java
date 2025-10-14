@@ -1,9 +1,11 @@
 package raisetech.StudentManagement.controller;
 
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
@@ -35,7 +37,7 @@ class StudentControllerTest {
     // 準備: 空のリストを返すように設定
     when(service.getStudents()).thenReturn(new ArrayList<>());
     when(service.getCourses()).thenReturn(new ArrayList<>());
-    when(converter.toDetails(new ArrayList<>(), new ArrayList<>()))
+    when(converter.toDetails(anyList(), anyList()))  // 任意のリストでマッチ
         .thenReturn(new ArrayList<>());
 
     // 実行と検証
@@ -49,19 +51,24 @@ class StudentControllerTest {
   /**
    * テスト: IDに数字以外を入れたら500エラーになるか
    *
-   * 【説明】
+   * 【現在の仕様】
    * URLに「/api/students/abc」と入力 → IDが数字ではない
-   * → 型変換エラー → 500エラーを返す
+   * → 型変換エラー(MethodArgumentTypeMismatchException)が発生
+   * → GlobalExceptionHandlerの汎用ハンドラーが処理
+   * → 500エラーを返す
    *
-   * ※注: 本来は400エラーが返るべきですが、
-   * GlobalExceptionHandlerがまだ実装されていないため、500になります。
-   * 将来的にGlobalExceptionHandlerを追加して、400に変更します。
+   * 【将来の改善予定】
+   * GlobalExceptionHandlerに型変換エラー専用のハンドラーを追加
+   * → MethodArgumentTypeMismatchExceptionを個別に処理
+   * → 400エラーを返すように変更予定
+   *
+   * TODO: GlobalExceptionHandler実装後、このテストの期待値を400に変更すること
    */
   @Test
   void 学生詳細取得でIDに数字以外を指定した場合_500エラーになること() throws Exception {
     // 実行と検証
     mockMvc.perform(get("/api/students/abc"))
-        .andExpect(status().isInternalServerError());  // 500エラー
+        .andExpect(status().isInternalServerError());  // 現在は500エラー
   }
 
   // ========== ③入力チェックテスト(JSON形式) ==========
@@ -93,7 +100,9 @@ class StudentControllerTest {
     mockMvc.perform(post("/api/students")
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
-        .andExpect(status().isBadRequest());  // 400エラー
+        .andExpect(status().isBadRequest())  // 400エラー
+        .andExpect(jsonPath("$.status").value("error"))  // エラーステータス確認
+        .andExpect(jsonPath("$.detail").value(org.hamcrest.Matchers.containsString("name")));  // nameフィールドのエラー
   }
 
   /**
