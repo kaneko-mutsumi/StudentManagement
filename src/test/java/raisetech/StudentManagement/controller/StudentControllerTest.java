@@ -49,26 +49,22 @@ class StudentControllerTest {
   // ========== ②異常系テスト(入力チェック) ==========
 
   /**
-   * テスト: IDに数字以外を入れたら500エラーになるか
+   * テスト: IDに数字以外を入れたら400エラーになるか
    *
-   * 【現在の仕様】
+   * 【仕様】
    * URLに「/api/students/abc」と入力 → IDが数字ではない
    * → 型変換エラー(MethodArgumentTypeMismatchException)が発生
-   * → GlobalExceptionHandlerの汎用ハンドラーが処理
-   * → 500エラーを返す
-   *
-   * 【将来の改善予定】
-   * GlobalExceptionHandlerに型変換エラー専用のハンドラーを追加
-   * → MethodArgumentTypeMismatchExceptionを個別に処理
-   * → 400エラーを返すように変更予定
-   *
-   * TODO: GlobalExceptionHandler実装後、このテストの期待値を400に変更すること
+   * → GlobalExceptionHandlerの型変換エラー専用ハンドラーが処理
+   * → 400エラーを返す
    */
   @Test
-  void 学生詳細取得でIDに数字以外を指定した場合_500エラーになること() throws Exception {
+  void 学生詳細取得でIDに数字以外を指定した場合_400エラーになること() throws Exception {
     // 実行と検証
     mockMvc.perform(get("/api/students/abc"))
-        .andExpect(status().isInternalServerError());  // 現在は500エラー
+        .andExpect(status().isBadRequest())  // 400エラー
+        .andExpect(jsonPath("$.status").value("error"))
+        .andExpect(jsonPath("$.message").value("入力形式が正しくありません"))
+        .andExpect(jsonPath("$.exceptionType").value("MethodArgumentTypeMismatchException"));
   }
 
   // ========== ③入力チェックテスト(JSON形式) ==========
@@ -102,6 +98,7 @@ class StudentControllerTest {
             .content(json))
         .andExpect(status().isBadRequest())  // 400エラー
         .andExpect(jsonPath("$.status").value("error"))  // エラーステータス確認
+        .andExpect(jsonPath("$.message").value("入力内容に誤りがあります"))
         .andExpect(jsonPath("$.detail").value(org.hamcrest.Matchers.containsString("name")));  // nameフィールドのエラー
   }
 
@@ -132,7 +129,10 @@ class StudentControllerTest {
     mockMvc.perform(post("/api/students")
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
-        .andExpect(status().isBadRequest());  // 400エラー
+        .andExpect(status().isBadRequest())  // 400エラー
+        .andExpect(jsonPath("$.status").value("error"))
+        .andExpect(jsonPath("$.message").value("入力内容に誤りがあります"))
+        .andExpect(jsonPath("$.detail").value(org.hamcrest.Matchers.containsString("age")));  // ageフィールドのエラー
   }
 
   /**
@@ -162,6 +162,9 @@ class StudentControllerTest {
     mockMvc.perform(post("/api/students")
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
-        .andExpect(status().isBadRequest());  // 400エラー
+        .andExpect(status().isBadRequest())  // 400エラー
+        .andExpect(jsonPath("$.status").value("error"))
+        .andExpect(jsonPath("$.message").value("入力内容に誤りがあります"))
+        .andExpect(jsonPath("$.detail").value(org.hamcrest.Matchers.containsString("email")));  // emailフィールドのエラー
   }
 }
