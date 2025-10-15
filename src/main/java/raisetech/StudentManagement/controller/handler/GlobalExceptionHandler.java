@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import raisetech.StudentManagement.exception.ResourceNotFoundException;
 import raisetech.StudentManagement.exception.TestException;
 
@@ -95,25 +96,27 @@ public class GlobalExceptionHandler {
   }
 
   /**
-   * その他の予期しない例外の共通処理
-   * RuntimeExceptionやその他の例外をキャッチする
+   * MethodArgumentTypeMismatchException専用ハンドラー
+   * URLパラメータの型変換に失敗した場合の処理
+   * 例: /api/students/abc → IDが数字ではない
    *
-   * @param e Exception
-   * @return エラーレスポンス
+   * @param e MethodArgumentTypeMismatchException
+   * @return エラーレスポンス（400）
    */
-  @ExceptionHandler(Exception.class)
-  public ResponseEntity<GlobalErrorResponse> handleGeneralException(Exception e) {
-    logger.error("【グローバル】予期しない例外発生: {}", e.getMessage(), e);
+  @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+  public ResponseEntity<GlobalErrorResponse> handleMethodArgumentTypeMismatchException(
+      MethodArgumentTypeMismatchException e) {
+    logger.warn("【グローバル】型変換エラー: {}", e.getMessage());
 
     GlobalErrorResponse response = new GlobalErrorResponse(
         "error",
-        "内部サーバーエラーが発生しました",
-        "システム管理者にお問い合わせください",
-        e.getClass().getSimpleName()
+        "入力形式が正しくありません",
+        e.getName() + "は数字で指定してください",
+        "MethodArgumentTypeMismatchException"
     );
 
-    // 500 Internal Server Error として返す
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    // 400 Bad Request として返す
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
 
   /**
@@ -136,6 +139,28 @@ public class GlobalExceptionHandler {
 
     // 400 Bad Request として返す
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+  }
+
+  /**
+   * その他の予期しない例外の共通処理
+   * RuntimeExceptionやその他の例外をキャッチする
+   *
+   * @param e Exception
+   * @return エラーレスポンス
+   */
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<GlobalErrorResponse> handleGeneralException(Exception e) {
+    logger.error("【グローバル】予期しない例外発生: {}", e.getMessage(), e);
+
+    GlobalErrorResponse response = new GlobalErrorResponse(
+        "error",
+        "内部サーバーエラーが発生しました",
+        "システム管理者にお問い合わせください",
+        e.getClass().getSimpleName()
+    );
+
+    // 500 Internal Server Error として返す
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
   }
 
   /**
