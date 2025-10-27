@@ -23,6 +23,10 @@ public class StudentConverter {
    * @return StudentDetailリスト（各StudentDetailはList<StudentCourse>を保持）
    */
   public List<StudentDetail> toDetails(List<Student> students, List<StudentCourse> courses) {
+    // TODO: Null安全処理を追加（別ブランチで対応）
+    // coursesがnullの場合のハンドリングが必要
+    // 対応後、StudentConverterTestのnullテストを有効化する
+
     // O(C): コースリストを学生IDでグループ化（studentId → List<StudentCourse>）
     Map<Integer, List<StudentCourse>> courseMap = courses.stream()
         .collect(Collectors.groupingBy(raisetech.StudentManagement.data.StudentCourse::getStudentId));
