@@ -1,10 +1,12 @@
 package raisetech.StudentManagement.controller.converter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
@@ -46,7 +48,8 @@ class StudentConverterTest {
   }
 
   @Test
-  void 学生1人にコース2個を紐づけて変換できること() {
+  @DisplayName("学生1人にコース2個を紐づけて変換できること")
+  void convertStudentWithTwoCourses() {
     Student student = new Student();
     student.setId(35);
     student.setName("テスト太郎");
@@ -70,8 +73,18 @@ class StudentConverterTest {
 
     List<StudentDetail> result = converter.toDetails(students, courses);
 
+    // サイズ検証
     assertEquals(1, result.size());
     assertEquals(2, result.get(0).getStudentCourse().size());
+
+    // 中身の検証
+    StudentDetail detail = result.get(0);
+    assertEquals(35, detail.getStudent().getId());
+    assertEquals("テスト太郎", detail.getStudent().getName());
+
+    List<StudentCourse> resultCourses = detail.getStudentCourse();
+    assertEquals("Javaコース", resultCourses.get(0).getCourseName());
+    assertEquals("Springコース", resultCourses.get(1).getCourseName());
   }
 
   @Test
@@ -115,8 +128,6 @@ class StudentConverterTest {
     assertEquals(1, result.get(1).getStudentCourse().size());
   }
 
-  // TODO: Converter修正後に有効化
-  /*
   @Test
   void コースがnullでも空リストが設定されること() {
     Student student = new Student();
@@ -134,5 +145,4 @@ class StudentConverterTest {
     assertNotNull(result.get(0).getStudentCourse());
     assertEquals(0, result.get(0).getStudentCourse().size());
   }
-  */
 }

@@ -1,9 +1,10 @@
 package raisetech.StudentManagement.controller.converter;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.ArrayList;
 import org.springframework.stereotype.Component;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
@@ -23,13 +24,11 @@ public class StudentConverter {
    * @return StudentDetailリスト（各StudentDetailはList<StudentCourse>を保持）
    */
   public List<StudentDetail> toDetails(List<Student> students, List<StudentCourse> courses) {
-    // TODO: Null安全処理を追加（別ブランチで対応）
-    // coursesがnullの場合のハンドリングが必要
-    // 対応後、StudentConverterTestのnullテストを有効化する
 
-    // O(C): コースリストを学生IDでグループ化（studentId → List<StudentCourse>）
-    Map<Integer, List<StudentCourse>> courseMap = courses.stream()
-        .collect(Collectors.groupingBy(raisetech.StudentManagement.data.StudentCourse::getStudentId));
+    // coursesがnullの場合は空のMapを使用
+    Map<Integer, List<StudentCourse>> courseMap = courses != null
+        ? courses.stream().collect(Collectors.groupingBy(StudentCourse::getStudentId))
+        : new HashMap<>();
 
     // O(S): 学生ごとにコースリストを結合してStudentDetail生成
     return students.stream()
