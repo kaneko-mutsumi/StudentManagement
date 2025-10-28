@@ -22,17 +22,21 @@ class StudentConverterTest {
   }
 
   @Test
-  void 空のリストを渡すと空のリストが返ること() {
+  @DisplayName("空のリストを渡すと空のリストが返ること")
+  void convertEmptyLists() {
     List<Student> students = new ArrayList<>();
     List<StudentCourse> courses = new ArrayList<>();
 
     List<StudentDetail> result = converter.toDetails(students, courses);
 
+    // サイズ検証
     assertEquals(0, result.size());
+    // 空リストなので中身の検証は不要
   }
 
   @Test
-  void 学生1人を渡すと学生1人が返ってくること() {
+  @DisplayName("学生1人を渡すと学生1人が返ってくること")
+  void convertSingleStudent() {
     Student student = new Student();
     student.setId(35);
     student.setName("テスト太郎");
@@ -44,7 +48,14 @@ class StudentConverterTest {
 
     List<StudentDetail> result = converter.toDetails(students, courses);
 
+    // サイズ検証
     assertEquals(1, result.size());
+
+    // 中身の検証を追加
+    StudentDetail detail = result.get(0);
+    assertEquals(35, detail.getStudent().getId());
+    assertEquals("テスト太郎", detail.getStudent().getName());
+    assertEquals(0, detail.getStudentCourse().size());
   }
 
   @Test
@@ -88,7 +99,8 @@ class StudentConverterTest {
   }
 
   @Test
-  void 学生2人にコースを振り分けて変換できること() {
+  @DisplayName("学生2人にコースを振り分けて変換できること")
+  void convertTwoStudentsWithCourses() {
     Student student1 = new Student();
     student1.setId(36);
     student1.setName("テスト子");
@@ -126,10 +138,23 @@ class StudentConverterTest {
     assertEquals(2, result.size());
     assertEquals(2, result.get(0).getStudentCourse().size());
     assertEquals(1, result.get(1).getStudentCourse().size());
+
+    // 中身の検証を追加
+    StudentDetail detail1 = result.get(0);
+    assertEquals(36, detail1.getStudent().getId());
+    assertEquals("テスト子", detail1.getStudent().getName());
+    assertEquals("Javaコース", detail1.getStudentCourse().get(0).getCourseName());
+    assertEquals("Springコース", detail1.getStudentCourse().get(1).getCourseName());
+
+    StudentDetail detail2 = result.get(1);
+    assertEquals(37, detail2.getStudent().getId());
+    assertEquals("テスト代", detail2.getStudent().getName());
+    assertEquals("Web開発コース", detail2.getStudentCourse().get(0).getCourseName());
   }
 
   @Test
-  void コースがnullでも空リストが設定されること() {
+  @DisplayName("コースがnullでも空リストが設定されること")
+  void convertWithNullCourses() {
     Student student = new Student();
     student.setId(40);
     student.setName("テストさん");
@@ -141,8 +166,14 @@ class StudentConverterTest {
 
     List<StudentDetail> result = converter.toDetails(students, courses);
 
+    // サイズ検証
     assertEquals(1, result.size());
-    assertNotNull(result.get(0).getStudentCourse());
-    assertEquals(0, result.get(0).getStudentCourse().size());
+
+    // 中身の検証
+    StudentDetail detail = result.get(0);
+    assertEquals(40, detail.getStudent().getId());
+    assertEquals("テストさん", detail.getStudent().getName());
+    assertNotNull(detail.getStudentCourse());
+    assertEquals(0, detail.getStudentCourse().size());
   }
 }
