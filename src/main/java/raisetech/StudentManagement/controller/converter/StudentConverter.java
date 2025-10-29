@@ -1,7 +1,7 @@
 package raisetech.StudentManagement.controller.converter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,11 +24,15 @@ public class StudentConverter {
    * @return StudentDetailリスト（各StudentDetailはList<StudentCourse>を保持）
    */
   public List<StudentDetail> toDetails(List<Student> students, List<StudentCourse> courses) {
+    // students が null の場合は空リストを返す
+    if (students == null) {
+      return Collections.emptyList();
+    }
 
     // coursesがnullの場合は空のMapを使用
     Map<Integer, List<StudentCourse>> courseMap = courses != null
         ? courses.stream().collect(Collectors.groupingBy(StudentCourse::getStudentId))
-        : new HashMap<>();
+        : Collections.emptyMap();
 
     // O(S): 学生ごとにコースリストを結合してStudentDetail生成
     return students.stream()

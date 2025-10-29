@@ -176,4 +176,17 @@ class StudentConverterTest {
     assertNotNull(detail.getStudentCourse());
     assertEquals(0, detail.getStudentCourse().size());
   }
+
+  @Test
+  @DisplayName("学生リストがnullでも空リストが返ること")
+  void convertWithNullStudents() {
+    List<Student> students = null;
+    List<StudentCourse> courses = new ArrayList<>();
+
+    List<StudentDetail> result = converter.toDetails(students, courses);
+
+    // サイズ検証
+    assertNotNull(result);
+    assertEquals(0, result.size());
+  }
 }
