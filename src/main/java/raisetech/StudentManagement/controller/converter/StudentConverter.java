@@ -1,9 +1,10 @@
 package raisetech.StudentManagement.controller.converter;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.ArrayList;
 import org.springframework.stereotype.Component;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
@@ -23,9 +24,15 @@ public class StudentConverter {
    * @return StudentDetailリスト（各StudentDetailはList<StudentCourse>を保持）
    */
   public List<StudentDetail> toDetails(List<Student> students, List<StudentCourse> courses) {
-    // O(C): コースリストを学生IDでグループ化（studentId → List<StudentCourse>）
-    Map<Integer, List<StudentCourse>> courseMap = courses.stream()
-        .collect(Collectors.groupingBy(raisetech.StudentManagement.data.StudentCourse::getStudentId));
+    // students が null の場合は空リストを返す
+    if (students == null) {
+      return Collections.emptyList();
+    }
+
+    // coursesがnullの場合は空のMapを使用
+    Map<Integer, List<StudentCourse>> courseMap = courses != null
+        ? courses.stream().collect(Collectors.groupingBy(StudentCourse::getStudentId))
+        : Collections.emptyMap();
 
     // O(S): 学生ごとにコースリストを結合してStudentDetail生成
     return students.stream()
