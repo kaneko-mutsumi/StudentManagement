@@ -49,6 +49,9 @@ dependencies {
     //MyBatis
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
 
+    // MyBatisテスト用
+    testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3'
+
 
     // Tomcat（WAR対応）
     providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
@@ -57,6 +60,10 @@ dependencies {
     // テスト
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // H2データベース(一時的なテスト用DB)
+    testImplementation 'com.h2database:h2:2.2.224'
+
 }
 
 tasks.named('test') {
