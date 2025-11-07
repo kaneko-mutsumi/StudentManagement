@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
 import raisetech.StudentManagement.domain.StudentDetail;
+import raisetech.StudentManagement.form.StudentForm;
 
 /**
  * 学生とコース情報の変換処理
@@ -18,23 +19,16 @@ public class StudentConverter {
 
   /**
    * 学生リストとコースリストからStudentDetailリストを生成
-   *
-   * @param students 学生リスト（S件）
-   * @param courses コースリスト（C件）
-   * @return StudentDetailリスト（各StudentDetailはList<StudentCourse>を保持）
    */
   public List<StudentDetail> toDetails(List<Student> students, List<StudentCourse> courses) {
-    // students が null の場合は空リストを返す
     if (students == null) {
       return Collections.emptyList();
     }
 
-    // coursesがnullの場合は空のMapを使用
     Map<Integer, List<StudentCourse>> courseMap = courses != null
         ? courses.stream().collect(Collectors.groupingBy(StudentCourse::getStudentId))
         : Collections.emptyMap();
 
-    // O(S): 学生ごとにコースリストを結合してStudentDetail生成
     return students.stream()
         .map(student -> createStudentDetail(student, courseMap.get(student.getId())))
         .collect(Collectors.toList());
@@ -42,18 +36,93 @@ public class StudentConverter {
 
   /**
    * StudentDetailオブジェクトを生成
-   *
-   * @param student 学生情報
-   * @param courses コースリスト（nullの場合は空Listを設定）
-   * @return StudentDetail
    */
   private StudentDetail createStudentDetail(Student student, List<StudentCourse> courses) {
     StudentDetail detail = new StudentDetail();
     detail.setStudent(student);
-
-    // Null安全：コースが無い場合は空Listを設定
     detail.setStudentCourse(courses != null ? courses : new ArrayList<>());
-
     return detail;
+  }
+
+
+  /**
+   * 学生情報とコース情報をフォーム形式に変換
+   *
+   * @param student 学生エンティティ
+   * @param course  コースエンティティ（null可能）
+   * @return StudentForm REST API応答用フォーム
+   */
+  public StudentForm toForm(Student student, StudentCourse course) {
+    StudentForm form = new StudentForm();
+
+    // 学生基本情報の設定
+    form.setId(student.getId());
+    form.setName(student.getName());
+    form.setKanaName(student.getKanaName());
+    form.setNickname(student.getNickname());
+    form.setEmail(student.getEmail());
+    form.setArea(student.getArea());
+    form.setAge(student.getAge());
+    form.setSex(student.getSex());
+    form.setRemark(student.getRemark());
+
+    // コース情報の設定（NULL安全処理）
+    if (course != null) {
+      form.setCourseId(course.getId());
+      form.setCourseName(course.getCourseName());
+      form.setCourseStartAt(course.getCourseStartAt());
+      form.setCourseEndAt(course.getCourseEndAt());
+    }
+
+    return form;
+  }
+
+  /**
+   * フォーム情報を学生エンティティに変換
+   *
+   * @param form REST APIからの入力データ
+   * @return Student データベース保存用エンティティ
+   */
+  public Student toStudent(StudentForm form) {
+    Student student = new Student();
+
+    // 新規登録時はIDがnull、更新時のみ設定
+    if (form.getId() != null) {
+      student.setId(form.getId());
+    }
+
+    // フォームからエンティティへデータをコピー
+    student.setName(form.getName());
+    student.setKanaName(form.getKanaName());
+    student.setNickname(form.getNickname());
+    student.setEmail(form.getEmail());
+    student.setArea(form.getArea());
+    student.setAge(form.getAge());
+    student.setSex(form.getSex());
+    student.setRemark(form.getRemark());
+
+    return student;
+  }
+
+  /**
+   * フォーム情報をコースエンティティに変換
+   *
+   * @param form REST APIからの入力データ
+   * @return StudentCourse データベース保存用エンティティ
+   */
+  public StudentCourse toCourse(StudentForm form) {
+    StudentCourse course = new StudentCourse();
+
+    // 新規登録時はCourseIDがnull、更新時のみ設定
+    if (form.getCourseId() != null) {
+      course.setId(form.getCourseId());
+    }
+
+    // フォームからエンティティへデータをコピー
+    course.setCourseName(form.getCourseName());
+    course.setCourseStartAt(form.getCourseStartAt());
+    course.setCourseEndAt(form.getCourseEndAt());
+
+    return course;
   }
 }
