@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import raisetech.StudentManagement.exception.ResourceNotFoundException;
-import raisetech.StudentManagement.exception.TestException;
 
 /**
  * アプリケーション全体の共通例外ハンドラー
@@ -21,33 +20,8 @@ public class GlobalExceptionHandler {
   private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
   /**
-   * TestException専用グローバルハンドラー
-   * アプリケーション全体でTestExceptionが発生した場合の共通処理
-   *
-   * @param e TestException
-   * @return エラーレスポンス
-   */
-  @ExceptionHandler(TestException.class)
-  public ResponseEntity<GlobalErrorResponse> handleTestException(TestException e) {
-    logger.warn("【グローバル】TestException発生: {}", e.getMessage());
-
-    GlobalErrorResponse response = new GlobalErrorResponse(
-        "error",
-        "システムエラー",
-        e.getMessage(),
-        "TestException"
-    );
-
-    // 400 Bad Request として返す
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-  }
-
-  /**
    * ResourceNotFoundException専用ハンドラー
-   * リソース（学生など）が見つからない場合の処理
-   *
-   * @param e ResourceNotFoundException
-   * @return エラーレスポンス（404）
+   * リソース(学生など)が見つからない場合の処理
    */
   @ExceptionHandler(ResourceNotFoundException.class)
   public ResponseEntity<GlobalErrorResponse> handleResourceNotFoundException(
@@ -61,22 +35,17 @@ public class GlobalExceptionHandler {
         "ResourceNotFoundException"
     );
 
-    // 404 Not Found として返す
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
   }
 
   /**
    * MethodArgumentNotValidException専用ハンドラー
    * @Valid によるバリデーション失敗時の処理
-   *
-   * @param e MethodArgumentNotValidException
-   * @return エラーレスポンス（400）
    */
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<GlobalErrorResponse> handleMethodArgumentNotValidException(
       MethodArgumentNotValidException e) {
 
-    // バリデーションエラーの詳細を取得
     String errorDetails = e.getBindingResult().getFieldErrors().stream()
         .map(error -> error.getField() + ": " + error.getDefaultMessage())
         .reduce((a, b) -> a + ", " + b)
@@ -91,17 +60,12 @@ public class GlobalExceptionHandler {
         "MethodArgumentNotValidException"
     );
 
-    // 400 Bad Request として返す
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
 
   /**
    * MethodArgumentTypeMismatchException専用ハンドラー
    * URLパラメータの型変換に失敗した場合の処理
-   * 例: /api/students/abc → IDが数字ではない
-   *
-   * @param e MethodArgumentTypeMismatchException
-   * @return エラーレスポンス（400）
    */
   @ExceptionHandler(MethodArgumentTypeMismatchException.class)
   public ResponseEntity<GlobalErrorResponse> handleMethodArgumentTypeMismatchException(
@@ -115,19 +79,16 @@ public class GlobalExceptionHandler {
         "MethodArgumentTypeMismatchException"
     );
 
-    // 400 Bad Request として返す
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
 
   /**
    * IllegalArgumentException専用ハンドラー
    * 不正な引数エラーの処理
-   *
-   * @param e IllegalArgumentException
-   * @return エラーレスポンス
    */
   @ExceptionHandler(IllegalArgumentException.class)
-  public ResponseEntity<GlobalErrorResponse> handleIllegalArgumentException(IllegalArgumentException e) {
+  public ResponseEntity<GlobalErrorResponse> handleIllegalArgumentException(
+      IllegalArgumentException e) {
     logger.warn("【グローバル】不正な引数エラー: {}", e.getMessage());
 
     GlobalErrorResponse response = new GlobalErrorResponse(
@@ -137,16 +98,11 @@ public class GlobalExceptionHandler {
         "IllegalArgumentException"
     );
 
-    // 400 Bad Request として返す
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
 
   /**
    * その他の予期しない例外の共通処理
-   * RuntimeExceptionやその他の例外をキャッチする
-   *
-   * @param e Exception
-   * @return エラーレスポンス
    */
   @ExceptionHandler(Exception.class)
   public ResponseEntity<GlobalErrorResponse> handleGeneralException(Exception e) {
@@ -159,13 +115,11 @@ public class GlobalExceptionHandler {
         e.getClass().getSimpleName()
     );
 
-    // 500 Internal Server Error として返す
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
   }
 
   /**
    * グローバルエラーレスポンス用クラス
-   * 詳細な情報を含むエラーレスポンス
    */
   public static class GlobalErrorResponse {
     private String status;
@@ -180,7 +134,6 @@ public class GlobalExceptionHandler {
       this.exceptionType = exceptionType;
     }
 
-    // Getter methods
     public String getStatus() { return status; }
     public String getMessage() { return message; }
     public String getDetail() { return detail; }
