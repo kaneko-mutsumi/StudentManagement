@@ -12,12 +12,15 @@
     ORDER BY id
   </select>
 
-  <!-- 学生idで学生情報を取得 -->
+  <!-- 学生idで学生情報を取得（削除済みは除外） -->
   <select id="getStudentById" resultType="raisetech.StudentManagement.data.Student">
     SELECT id, name, kanaName, nickname, email, area, age, sex, remark, deleted
     FROM students
     WHERE id = #{id}
+    AND (deleted IS NULL OR deleted = 0)  <!-- ← ここを追加！ -->
   </select>
+
+  <!-- 以下は変更なし -->
 
   <!-- 全コース情報を取得 -->
   <select id="getAllCourses" resultType="raisetech.StudentManagement.data.StudentCourse">
@@ -77,6 +80,5 @@
   <update id="deleteStudent">
     UPDATE students SET deleted = 1 WHERE id = #{id}
   </update>
-
 
 </mapper>
