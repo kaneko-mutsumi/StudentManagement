@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
-import raisetech.StudentManagement.data.EnrollmentStatus;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
 import raisetech.StudentManagement.domain.StudentDetail;
@@ -73,10 +72,6 @@ public class StudentConverter {
       form.setCourseName(course.getCourseName());
       form.setCourseStartAt(course.getCourseStartAt());
       form.setCourseEndAt(course.getCourseEndAt());
-
-      if (course.getEnrollmentStatus() != null) {
-        form.setEnrollmentStatus(course.getEnrollmentStatus().getStatus());
-      }
     }
 
     return form;
@@ -127,12 +122,6 @@ public class StudentConverter {
     course.setCourseName(form.getCourseName());
     course.setCourseStartAt(form.getCourseStartAt());
     course.setCourseEndAt(form.getCourseEndAt());
-
-    if (form.getEnrollmentStatus() != null) {
-      EnrollmentStatus status = new EnrollmentStatus();
-      status.setStatus(form.getEnrollmentStatus());
-      course.setEnrollmentStatus(status);
-    }
 
     return course;
   }

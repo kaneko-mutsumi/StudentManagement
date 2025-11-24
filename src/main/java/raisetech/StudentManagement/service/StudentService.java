@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import raisetech.StudentManagement.controller.converter.StudentConverter;
-import raisetech.StudentManagement.data.EnrollmentStatus;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
 import raisetech.StudentManagement.exception.ResourceNotFoundException;
@@ -122,16 +121,6 @@ public class StudentService {
         throw new RuntimeException("学生登録に失敗しました");
       }
 
-      EnrollmentStatus enrollmentStatus = new EnrollmentStatus();
-      enrollmentStatus.setCourseId(course.getId());
-      enrollmentStatus.setStatus(form.getEnrollmentStatus());
-      int statusRows = repository.saveEnrollmentStatus(enrollmentStatus);
-
-      if (statusRows != 1) {
-        logger.error("申込状況登録で予期しない更新件数: 期待=1, 実際={}", statusRows);
-        throw new RuntimeException("学生登録に失敗しました");
-      }
-
       logger.info("学生登録完了: ID={}, 名前={}", student.getId(), student.getName());
 
       logger.info("学生登録完了: ID={}, 名前={}", student.getId(), student.getName());
@@ -151,7 +140,6 @@ public class StudentService {
     logger.info("学生更新開始: 対象ID={}", form.getId());
 
     try {
-      // ✅ 修正: converterを使用
       Student student = converter.toStudent(form);
       int studentRows = repository.updateStudent(student);
 
@@ -173,17 +161,6 @@ public class StudentService {
 
         if (courseRows != 1) {
           logger.warn("コース更新対象が見つかりません: コースID={}", form.getCourseId());
-        }
-
-        if (form.getEnrollmentStatus() != null) {
-          EnrollmentStatus status = new EnrollmentStatus();
-          status.setCourseId(form.getCourseId());
-          status.setStatus(form.getEnrollmentStatus());
-          int statusRows = repository.updateEnrollmentStatus(status);
-
-          if (statusRows != 1) {
-            logger.warn("申込状況更新対象が見つかりません: コースID={}", form.getCourseId());
-          }
         }
       }
 

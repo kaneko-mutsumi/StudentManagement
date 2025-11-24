@@ -13,7 +13,6 @@ public class StudentCourse {
   private String courseName;
   private LocalDate courseStartAt;
   private LocalDate courseEndAt;
-  private EnrollmentStatus enrollmentStatus;
   public StudentCourse() {
   }
 }

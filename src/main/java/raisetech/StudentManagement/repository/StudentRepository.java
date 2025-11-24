@@ -2,7 +2,6 @@ package raisetech.StudentManagement.repository;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
-import raisetech.StudentManagement.data.EnrollmentStatus;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
 
@@ -66,18 +65,4 @@ public interface StudentRepository {
    */
   int deleteStudent(int id);
 
-  /**
-   * 申込状況を登録
-   */
-  int saveEnrollmentStatus(EnrollmentStatus status);
-
-  /**
-   * 申込状況を更新
-   */
-  int updateEnrollmentStatus(EnrollmentStatus status);
-
-  /**
-   * コースIDで申込状況を取得
-   */
-  EnrollmentStatus getEnrollmentStatusByCourseId(int courseId);
 }

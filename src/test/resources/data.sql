@@ -8,8 +8,3 @@ INSERT INTO students (name, kanaName, nickname, email, area, age, sex, remark, d
 INSERT INTO students_courses (student_id, course_name, course_start_at, course_end_at) VALUES
 (1, 'Java入門', '2025-01-01', '2025-03-31'),
 (2, 'Spring実践', '2025-04-01', '2025-06-30');
-
--- テスト用申込状況データ
-INSERT INTO enrollment_status (course_id, status) VALUES
-(1, '受講中'),
-(2, '本申込');

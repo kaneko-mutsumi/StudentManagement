@@ -20,11 +20,3 @@ CREATE TABLE students_courses (
     course_start_at DATE,
     course_end_at DATE
 );
-
--- 申込状況テーブル
-CREATE TABLE enrollment_status (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    course_id INT NOT NULL,
-    status VARCHAR(20) NOT NULL DEFAULT '仮申込',
-    FOREIGN KEY (course_id) REFERENCES students_courses(id) ON DELETE CASCADE
-);
