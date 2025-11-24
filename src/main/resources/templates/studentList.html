@@ -47,6 +47,11 @@
             <span th:text="${#temporals.format(course.courseStartAt, 'yyyy/MM/dd')}">2024/04/01</span>
             ～
             <span th:text="${#temporals.format(course.courseEndAt, 'yyyy/MM/dd')}">2024/07/01</span>
+            <br>
+            <span style="color: #0066cc; font-weight: bold;"
+                  th:text="'状況: ' + ${course.enrollmentStatus != null ? course.enrollmentStatus.status : '未設定'}">
+              状況: 受講中
+            </span>
           </div>
         </div>
         <span th:unless="${studentDetail.hasCourses()}">コースなし</span>
