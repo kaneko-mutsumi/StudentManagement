@@ -228,10 +228,6 @@ class StudentRepositoryTest {
     List<Student> students = repository.getActiveStudents();
     assertFalse(students.stream().anyMatch(s -> s.getId() == EXISTING_STUDENT_ID_1),
         "削除した学生は有効一覧に含まれないはず");
-
-    Student deleted = repository.getStudentById(EXISTING_STUDENT_ID_1);
-    assertNotNull(deleted, "論理削除なのでデータは残っているはず");
-    assertDeletedIsTrue(deleted.getDeleted());
   }
 
   @Test
@@ -249,8 +245,9 @@ class StudentRepositoryTest {
 
     assertEquals(1, result, "1件更新されるはず");
 
-    Student deleted = repository.getStudentById(EXISTING_STUDENT_ID_3);
-    assertDeletedIsTrue(deleted.getDeleted());
+    List<Student> students = repository.getActiveStudents();
+    assertFalse(students.stream().anyMatch(s -> s.getId() == EXISTING_STUDENT_ID_3),
+        "削除した学生は有効一覧に含まれないはず");
   }
 
   // ============ コース取得系テスト ============

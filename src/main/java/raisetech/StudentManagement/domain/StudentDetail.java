@@ -15,19 +15,19 @@ import raisetech.StudentManagement.data.StudentCourse;
 public class StudentDetail {
 
   private Student student;
-  private List<StudentCourse> StudentCourse = new ArrayList<>();
+  private List<StudentCourse> studentCourse = new ArrayList<>();
 
   /**
    * コースが存在するかチェック
    */
   public boolean hasCourses() {
-    return StudentCourse != null && !StudentCourse.isEmpty();
+    return studentCourse != null && !studentCourse.isEmpty();
   }
 
   /**
    * 主コース取得（編集時の後方互換性用）
    */
   public StudentCourse getPrimaryCourse() {
-    return hasCourses() ? StudentCourse.get(0) : null;
+    return hasCourses() ? studentCourse.get(0) : null;
   }
 }

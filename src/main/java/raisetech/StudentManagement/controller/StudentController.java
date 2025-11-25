@@ -55,23 +55,14 @@ public class StudentController {
   })
   @GetMapping("/students")
   public ResponseEntity<List<StudentDetail>> getStudents() {
-    try {
-      logger.info("学生一覧画面アクセス");
+    logger.info("学生一覧画面アクセス");
 
-      // 2クエリでデータ取得
-      List<Student> students = service.getStudents();
-      List<StudentCourse> courses = service.getCourses();
+    List<Student> students = service.getStudents();
+    List<StudentCourse> courses = service.getCourses();
+    List<StudentDetail> studentDetails = converter.toDetails(students, courses);
 
-      // Converterで結合（O(S + C)）
-      List<StudentDetail> studentDetails = converter.toDetails(students, courses);
-
-      logger.info("REST API: 学生一覧表示完了: {}件", studentDetails.size());
-      return ResponseEntity.ok(studentDetails);
-
-    } catch (Exception e) {
-      logger.error("REST API: 学生一覧取得エラー", e);
-      return ResponseEntity.internalServerError().build();
-    }
+    logger.info("REST API: 学生一覧表示完了: {}件", studentDetails.size());
+    return ResponseEntity.ok(studentDetails);
   }
 
   /**
@@ -84,18 +75,13 @@ public class StudentController {
   })
   @GetMapping("/courses")
   public ResponseEntity<List<StudentCourse>> getCourses() {
-    try {
-      logger.info("REST API: コース一覧取得");
-      List<StudentCourse> courses = service.getCourses();
-      return ResponseEntity.ok(courses);
-    } catch (Exception e) {
-      logger.error("REST API: コース一覧取得エラー", e);
-      return ResponseEntity.internalServerError().build();
-    }
+    logger.info("REST API: コース一覧取得");
+    List<StudentCourse> courses = service.getCourses();
+    return ResponseEntity.ok(courses);
   }
 
   /**
-   * 特定学生取得 例外処理テスト用に修正
+   * 特定学生取得
    */
   @Operation(summary = "学生詳細取得", description = "指定されたIDの学生情報とコース情報を取得します")
   @ApiResponses(value = {
@@ -106,7 +92,6 @@ public class StudentController {
   @GetMapping("/students/{id}")
   public ResponseEntity<StudentForm> getStudent(@PathVariable int id) {
     logger.info("REST API: 学生詳細取得: ID={}", id);
-
     StudentForm form = service.getStudentForm(id);
     return ResponseEntity.ok(form);
   }
@@ -150,9 +135,8 @@ public class StudentController {
     return ResponseEntity.ok(response);
   }
 
-
   /**
-   * 学生削除処理（ラジオボタン単一選択）
+   * 学生削除処理
    */
   @Operation(summary = "学生削除", description = "指定されたIDの学生を論理削除します")
   @ApiResponses(value = {

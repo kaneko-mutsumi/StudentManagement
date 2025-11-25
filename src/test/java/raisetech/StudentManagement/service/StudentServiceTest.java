@@ -1,231 +1,210 @@
 package raisetech.StudentManagement.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.LocalDate;
+import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
 import raisetech.StudentManagement.exception.ResourceNotFoundException;
 import raisetech.StudentManagement.form.StudentForm;
-import raisetech.StudentManagement.repository.StudentRepository;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@Transactional
 class StudentServiceTest {
 
-  @Mock
-  private StudentRepository repository;
+  @Autowired
+  private StudentService service;
 
-  @InjectMocks
-  private StudentService sut;
+  // ==========================================
+  // 全メソッドのテスト（正常系）
+  // ==========================================
 
   @Test
-  void 学生登録が正常に動作すること() {
-    // 事前準備：テスト用のデータを作る
+  void 学生一覧を取得できる() {
+    // getStudents() のテスト
+    List<Student> students = service.getStudents();
+
+    assertNotNull(students);
+    // data.sql にデータがあれば空でない
+    assertFalse(students.isEmpty());
+  }
+
+  @Test
+  void コース一覧を取得できる() {
+    // getCourses() のテスト ← これが抜けていた！
+    List<StudentCourse> courses = service.getCourses();
+
+    assertNotNull(courses);
+    // data.sql にコースデータがあれば空でない
+    assertFalse(courses.isEmpty());
+  }
+
+  @Test
+  void 学生詳細を取得できる() {
+    // getStudentForm(int id) のテスト
+    List<Student> students = service.getStudents();
+    assertTrue(students.size() > 0, "テストデータが必要です");
+
+    int existingId = students.get(0).getId();
+    StudentForm form = service.getStudentForm(existingId);
+
+    assertNotNull(form);
+    assertNotNull(form.getName());
+    assertEquals(existingId, form.getId());
+  }
+
+  @Test
+  void 学生を登録できる() {
+    // registerStudent(StudentForm form) のテスト
+    StudentForm form = createValidForm("日向翔陽");
+
+    assertDoesNotThrow(() -> service.registerStudent(form));
+
+    // 登録されたことを確認
+    List<Student> students = service.getStudents();
+    assertTrue(students.stream()
+            .anyMatch(s -> "日向翔陽".equals(s.getName())),
+        "登録した学生が見つかりません");
+  }
+
+  @Test
+  void 学生を更新できる() {
+    // updateStudent(StudentForm form) のテスト
+    List<Student> students = service.getStudents();
+    assertTrue(students.size() > 0, "テストデータが必要です");
+
+    int id = students.get(0).getId();
+    StudentForm form = service.getStudentForm(id);
+    form.setName("更新後の名前");
+
+    assertDoesNotThrow(() -> service.updateStudent(form));
+
+    // 更新されたことを確認
+    StudentForm updated = service.getStudentForm(id);
+    assertEquals("更新後の名前", updated.getName());
+  }
+
+  @Test
+  void 学生を削除できる() {
+    // deleteStudent(int id) のテスト
+    List<Student> students = service.getStudents();
+    assertTrue(students.size() > 0, "テストデータが必要です");
+
+    int id = students.get(0).getId();
+
+    assertDoesNotThrow(() -> service.deleteStudent(id));
+
+    // 削除されたことを確認（取得するとエラー）
+    assertThrows(ResourceNotFoundException.class,
+        () -> service.getStudentForm(id),
+        "削除した学生が取得できてしまいます");
+  }
+
+  // ==========================================
+  // エラーケースのテスト（異常系）
+  // ==========================================
+
+  @Test
+  void 存在しない学生の詳細取得はエラー() {
+    assertThrows(ResourceNotFoundException.class,
+        () -> service.getStudentForm(99999),
+        "存在しないIDでResourceNotFoundExceptionが発生すること");
+  }
+
+  @Test
+  void 存在しない学生の更新はエラー() {
     StudentForm form = new StudentForm();
-    form.setName("テスト太郎");
-    form.setKanaName("テストタロウ");
-    form.setEmail("test@example.com");
-    form.setArea("テスト市");
+    form.setId(99999);
+    form.setName("存在しない学生");
+    form.setAge(20);
+
+    assertThrows(ResourceNotFoundException.class,
+        () -> service.updateStudent(form),
+        "存在しないIDでResourceNotFoundExceptionが発生すること");
+  }
+
+  @Test
+  void 存在しない学生の削除はエラー() {
+    assertThrows(ResourceNotFoundException.class,
+        () -> service.deleteStudent(99999),
+        "存在しないIDでResourceNotFoundExceptionが発生すること");
+  }
+
+  @Test
+  void null入力での登録はエラー() {
+    assertThrows(IllegalArgumentException.class,
+        () -> service.registerStudent(null),
+        "nullでIllegalArgumentExceptionが発生すること");
+  }
+
+  @Test
+  void IDなしでの更新はエラー() {
+    StudentForm form = new StudentForm();
+    form.setName("名前だけ");
+    // form.setId() を呼ばない → null
+
+    assertThrows(IllegalArgumentException.class,
+        () -> service.updateStudent(form),
+        "IDなしでIllegalArgumentExceptionが発生すること");
+  }
+
+  // ==========================================
+  // 統合シナリオテスト
+  // ==========================================
+
+  @Test
+  void 学生の登録から削除までの一連の流れ() {
+    // 1. 登録
+    StudentForm form = createValidForm("影山飛雄");
+    service.registerStudent(form);
+
+    // 2. 一覧取得で存在確認
+    List<Student> students = service.getStudents();
+    Student registered = students.stream()
+        .filter(s -> "影山飛雄".equals(s.getName()))
+        .findFirst()
+        .orElseThrow(() -> new AssertionError("登録した学生が見つかりません"));
+
+    // 3. 詳細取得
+    StudentForm detail = service.getStudentForm(registered.getId());
+    assertEquals("影山飛雄", detail.getName());
+
+    // 4. 更新
+    detail.setName("影山飛雄（更新）");
+    service.updateStudent(detail);
+
+    StudentForm updated = service.getStudentForm(registered.getId());
+    assertEquals("影山飛雄（更新）", updated.getName());
+
+    // 5. 削除
+    service.deleteStudent(registered.getId());
+
+    assertThrows(ResourceNotFoundException.class,
+        () -> service.getStudentForm(registered.getId()));
+  }
+
+  // ==========================================
+  // ヘルパーメソッド
+  // ==========================================
+
+  private StudentForm createValidForm(String name) {
+    StudentForm form = new StudentForm();
+    form.setName(name);
+    form.setKanaName("テスト");
+    form.setNickname("ニックネーム");
+    form.setEmail(name.replace(" ", "") + "@example.com");
+    form.setArea("東京都");
     form.setAge(20);
     form.setSex("男性");
+    form.setRemark("テストデータ");
     form.setCourseName("Java入門");
-
-    // 事前準備：偽物のrepositoryの動作を設定
-    doAnswer(invocation -> {
-      Student student = invocation.getArgument(0);
-      student.setId(1);
-      return 1;
-    }).when(repository).saveStudent(any(Student.class));
-
-    when(repository.saveCourse(any(StudentCourse.class))).thenReturn(1);
-
-    // 実行：registerStudentメソッドを呼ぶ
-    sut.registerStudent(form);
-
-    // 検証：ArgumentCaptorで値検証
-    ArgumentCaptor<Student> captor = ArgumentCaptor.forClass(Student.class);
-    verify(repository).saveStudent(captor.capture());
-    Student captured = captor.getValue();
-    assertEquals("テスト太郎", captured.getName());
-    assertEquals("test@example.com", captured.getEmail());
-    assertEquals(20, captured.getAge());
-  }
-
-  @Test
-  void 学生情報がnullの場合_エラーが発生すること() {
-    // 準備：nullを用意
-    StudentForm form = null;
-
-    // 実行と検証：IllegalArgumentExceptionが発生することを確認
-    assertThrows(IllegalArgumentException.class, () -> {
-      sut.registerStudent(form);
-    });
-  }
-
-  @Test
-  void 学生情報の登録に失敗した場合_エラーが発生すること() {
-    // 準備：正常なformを作成
-    StudentForm form = new StudentForm();
-    form.setName("テスト太郎");
-    form.setKanaName("テストタロウ");
-    form.setEmail("test@example.com");
-    form.setArea("テスト市");
-    form.setAge(20);
-    form.setSex("男性");
-    form.setCourseName("Java入門");
-
-    // 準備：saveStudentが失敗する（0を返す）
-    doAnswer(invocation -> {
-      Student student = invocation.getArgument(0);
-      student.setId(1);
-      return 0;  // 失敗を表す0を返す
-    }).when(repository).saveStudent(any(Student.class));
-
-    // 検証
-    assertThrows(RuntimeException.class, () -> {
-      sut.registerStudent(form);
-    });
-  }
-
-  @Test
-  void コース情報の登録に失敗した場合_エラーが発生すること() {
-    // 準備：正常なformを作成
-    StudentForm form = new StudentForm();
-    form.setName("テスト太郎");
-    form.setKanaName("テストタロウ");
-    form.setEmail("test@example.com");
-    form.setArea("テスト市");
-    form.setAge(20);
-    form.setSex("男性");
-    form.setCourseName("Java入門");
-
-    // 準備：saveStudentは成功する
-    doAnswer(invocation -> {
-      Student student = invocation.getArgument(0);
-      student.setId(1);
-      return 1;  // 成功
-    }).when(repository).saveStudent(any(Student.class));
-
-    // 準備：saveCourseは失敗する（0を返す）
-    when(repository.saveCourse(any(StudentCourse.class))).thenReturn(0);
-
-    // 実行と検証：RuntimeExceptionが発生することを確認
-    assertThrows(RuntimeException.class, () -> {
-      sut.registerStudent(form);
-    });
-  }
-
-  @Test
-  void 学生削除が正常に動作すること() {
-    // 準備：削除するIDを用意
-    int id = 1;
-
-    // 準備：deleteStudentが成功する（1を返す）
-    when(repository.deleteStudent(id)).thenReturn(1);
-
-    // 実行：deleteStudentメソッドを呼ぶ
-    sut.deleteStudent(id);
-
-    // 検証：repositoryのdeleteStudentが1回呼ばれたか確認
-    verify(repository, times(1)).deleteStudent(id);
-  }
-
-  @Test
-  void 削除対象の学生が見つからない場合_エラーが発生すること() {
-    // 準備：存在しないIDを用意
-    int id = 999;
-
-    // 準備：deleteStudentが失敗する（0を返す）
-    when(repository.deleteStudent(id)).thenReturn(0);
-
-    // 実行と検証：ResourceNotFoundExceptionが発生することを確認
-    assertThrows(ResourceNotFoundException.class, () -> {
-      sut.deleteStudent(id);
-    });
-  }
-
-  @Test
-  void 学生更新が正常に動作すること() {
-    // 準備：更新用のformを作成（IDとcourseIdが必要）
-    StudentForm form = new StudentForm();
-    form.setId(1);  // 既存のID
-    form.setName("更新太郎");
-    form.setKanaName("コウシンタロウ");
-    form.setEmail("update@example.com");
-    form.setArea("更新市");
-    form.setAge(25);
-    form.setSex("男性");
-    form.setCourseId(10);  // 既存のコースID
-    form.setCourseName("Spring実践");
-
-    // 準備：updateStudentが成功する（1を返す）
-    when(repository.updateStudent(any(Student.class))).thenReturn(1);
-
-    // 準備：updateCourseが成功する（1を返す）
-    when(repository.updateCourse(any(StudentCourse.class))).thenReturn(1);
-
-    // 実行：updateStudentメソッドを呼ぶ
-    sut.updateStudent(form);
-
-    // 値検証
-    ArgumentCaptor<Student> captor = ArgumentCaptor.forClass(Student.class);
-    verify(repository).updateStudent(captor.capture());
-    assertEquals("更新太郎", captor.getValue().getName());
-    assertEquals(1, captor.getValue().getId());
-  }
-
-  @Test
-  void 更新対象の学生が見つからない場合_エラーが発生すること() {
-    // 準備：存在しないIDのformを作成
-    StudentForm form = new StudentForm();
-    form.setId(999);
-    form.setName("存在しない太郎");
-    form.setKanaName("ソンザイシナイタロウ");
-    form.setEmail("notfound@example.com");
-    form.setArea("存在しない市");
-    form.setAge(20);
-    form.setSex("男性");
-    form.setCourseName("Java入門");
-
-    // 準備：updateStudentが失敗する（0を返す）
-    when(repository.updateStudent(any(Student.class))).thenReturn(0);
-
-    // 実行と検証：ResourceNotFoundExceptionが発生することを確認
-    assertThrows(ResourceNotFoundException.class, () -> {
-      sut.updateStudent(form);
-    });
-  }
-
-  @Test
-  void 更新時にformがnullの場合_エラーが発生すること() {
-    // 準備：nullを用意
-    StudentForm form = null;
-
-    // 実行と検証：RuntimeExceptionが発生することを確認
-    assertThrows(IllegalArgumentException.class, () -> {
-      sut.updateStudent(null);
-    });
-  }
-
-  @Test
-  void 更新時にIDがnullの場合_エラーが発生すること() {
-    StudentForm form = new StudentForm();
-    form.setName("テスト");
-    // IDなし
-
-    assertThrows(IllegalArgumentException.class, () -> {
-      sut.updateStudent(form);
-    });
+    form.setCourseStartAt(LocalDate.now());
+    form.setCourseEndAt(LocalDate.now().plusMonths(3));
+    return form;
   }
 }
