@@ -55,4 +55,6 @@ public class StudentForm {
   @NotNull(message = "終了日を入力してください")
   private LocalDate courseEndAt;
 
+  @NotBlank(message = "申込状況を選択してください")
+  private String enrollmentStatus;
 }
