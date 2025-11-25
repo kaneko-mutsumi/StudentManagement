@@ -2,6 +2,8 @@ package raisetech.StudentManagement.repository;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import raisetech.StudentManagement.data.EnrollmentStatus;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
 
@@ -65,4 +67,33 @@ public interface StudentRepository {
    */
   int deleteStudent(int id);
 
+  /**
+   * 申込状況を登録
+   */
+  int saveEnrollmentStatus(EnrollmentStatus status);
+
+  /**
+   * 申込状況を更新
+   */
+  int updateEnrollmentStatus(EnrollmentStatus status);
+
+  /**
+   * コースIDで申込状況を取得
+   */
+  EnrollmentStatus getEnrollmentStatusByCourseId(int courseId);
+
+  /**
+   * 検索条件に基づいて学生を検索
+   * @param name 名前（部分一致）
+   * @param area 地域（部分一致）
+   * @param courseName コース名（完全一致）
+   * @param enrollmentStatus 申込状況（完全一致）
+   * @return 検索結果の学生リスト
+   */
+  List<Student> searchStudents(
+      @Param("name") String name,
+      @Param("area") String area,
+      @Param("courseName") String courseName,
+      @Param("enrollmentStatus") String enrollmentStatus
+  );
 }

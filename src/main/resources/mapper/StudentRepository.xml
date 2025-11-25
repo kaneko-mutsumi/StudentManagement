@@ -17,34 +17,40 @@
     SELECT id, name, kanaName, nickname, email, area, age, sex, remark, deleted
     FROM students
     WHERE id = #{id}
-    AND (deleted IS NULL OR deleted = 0)  <!-- ← ここを追加！ -->
+    AND (deleted IS NULL OR deleted = 0)
   </select>
 
-  <!-- 以下は変更なし -->
-
-  <!-- 全コース情報を取得 -->
+  <!-- 全コース情報を取得（申込状況も結合） -->
   <select id="getAllCourses" resultType="raisetech.StudentManagement.data.StudentCourse">
     SELECT
-    id,
-    student_id as studentId,
-    course_name as courseName,
-    course_start_at as courseStartAt,
-    course_end_at as courseEndAt
-    FROM students_courses
-    ORDER BY student_id, id
+    sc.id,
+    sc.student_id as studentId,
+    sc.course_name as courseName,
+    sc.course_start_at as courseStartAt,
+    sc.course_end_at as courseEndAt,
+    es.id as "enrollmentStatus.id",
+    es.course_id as "enrollmentStatus.courseId",
+    es.status as "enrollmentStatus.status"
+    FROM students_courses sc
+    LEFT JOIN enrollment_status es ON sc.id = es.course_id
+    ORDER BY sc.student_id, sc.id
   </select>
 
-  <!-- 特定学生のコース情報を取得 -->
+  <!-- 特定学生のコース情報を取得（申込状況も結合） -->
   <select id="getCoursesByStudentId" resultType="raisetech.StudentManagement.data.StudentCourse">
     SELECT
-    id,
-    student_id as studentId,
-    course_name as courseName,
-    course_start_at as courseStartAt,
-    course_end_at as courseEndAt
-    FROM students_courses
-    WHERE student_id = #{studentId}
-    ORDER BY id
+    sc.id,
+    sc.student_id as studentId,
+    sc.course_name as courseName,
+    sc.course_start_at as courseStartAt,
+    sc.course_end_at as courseEndAt,
+    es.id as "enrollmentStatus.id",
+    es.course_id as "enrollmentStatus.courseId",
+    es.status as "enrollmentStatus.status"
+    FROM students_courses sc
+    LEFT JOIN enrollment_status es ON sc.id = es.course_id
+    WHERE sc.student_id = #{studentId}
+    ORDER BY sc.id
   </select>
 
   <!-- 学生情報を登録 -->
@@ -81,5 +87,47 @@
   <update id="deleteStudent">
     UPDATE students SET deleted = 1 WHERE id = #{id}
   </update>
+
+  <!-- 申込状況を登録 -->
+  <insert id="saveEnrollmentStatus" parameterType="raisetech.StudentManagement.data.EnrollmentStatus">
+    INSERT INTO enrollment_status(course_id, status)
+    VALUES(#{courseId}, #{status})
+  </insert>
+
+  <!-- 申込状況を更新 -->
+  <update id="updateEnrollmentStatus" parameterType="raisetech.StudentManagement.data.EnrollmentStatus">
+    UPDATE enrollment_status
+    SET status = #{status}
+    WHERE course_id = #{courseId}
+  </update>
+
+  <!-- 申込状況を取得 -->
+  <select id="getEnrollmentStatusByCourseId" resultType="raisetech.StudentManagement.data.EnrollmentStatus">
+    SELECT id, course_id as courseId, status
+    FROM enrollment_status
+    WHERE course_id = #{courseId}
+  </select>
+
+  <!-- 学生検索（複数条件対応） -->
+  <select id="searchStudents" resultType="raisetech.StudentManagement.data.Student">
+    SELECT DISTINCT s.id, s.name, s.kanaName, s.nickname, s.email, s.area, s.age, s.sex, s.remark, s.deleted
+    FROM students s
+    LEFT JOIN students_courses sc ON s.id = sc.student_id
+    LEFT JOIN enrollment_status es ON sc.id = es.course_id
+    WHERE (s.deleted IS NULL OR s.deleted = 0)
+    <if test="name != null and name != ''">
+      AND s.name LIKE CONCAT('%', #{name}, '%')
+    </if>
+    <if test="area != null and area != ''">
+      AND s.area LIKE CONCAT('%', #{area}, '%')
+    </if>
+    <if test="courseName != null and courseName != ''">
+      AND sc.course_name = #{courseName}
+    </if>
+    <if test="enrollmentStatus != null and enrollmentStatus != ''">
+      AND es.status = #{enrollmentStatus}
+    </if>
+    ORDER BY s.id
+  </select>
 
 </mapper>

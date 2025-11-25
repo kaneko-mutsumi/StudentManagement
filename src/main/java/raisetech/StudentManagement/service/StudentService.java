@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import raisetech.StudentManagement.controller.converter.StudentConverter;
+import raisetech.StudentManagement.data.EnrollmentStatus;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
+import raisetech.StudentManagement.domain.StudentDetail;
 import raisetech.StudentManagement.exception.ResourceNotFoundException;
 import raisetech.StudentManagement.form.StudentForm;
 import raisetech.StudentManagement.repository.StudentRepository;
@@ -121,7 +123,20 @@ public class StudentService {
         throw new RuntimeException("学生登録に失敗しました");
       }
 
-      logger.info("学生登録完了: ID={}, 名前={}", student.getId(), student.getName());
+      // 申込状況を登録（nullの場合はデフォルト値を設定）
+      EnrollmentStatus enrollmentStatus = new EnrollmentStatus();
+      enrollmentStatus.setCourseId(course.getId());
+      enrollmentStatus.setStatus(
+          form.getEnrollmentStatus() != null && !form.getEnrollmentStatus().isEmpty()
+              ? form.getEnrollmentStatus()
+              : "仮申込"
+      );
+      int statusRows = repository.saveEnrollmentStatus(enrollmentStatus);
+
+      if (statusRows != 1) {
+        logger.error("申込状況登録で予期しない更新件数: 期待=1, 実際={}", statusRows);
+        throw new RuntimeException("学生登録に失敗しました");
+      }
 
       logger.info("学生登録完了: ID={}, 名前={}", student.getId(), student.getName());
     } catch (RuntimeException e) {
@@ -162,6 +177,17 @@ public class StudentService {
         if (courseRows != 1) {
           logger.warn("コース更新対象が見つかりません: コースID={}", form.getCourseId());
         }
+
+        if (form.getEnrollmentStatus() != null) {
+          EnrollmentStatus status = new EnrollmentStatus();
+          status.setCourseId(form.getCourseId());
+          status.setStatus(form.getEnrollmentStatus());
+          int statusRows = repository.updateEnrollmentStatus(status);
+
+          if (statusRows != 1) {
+            logger.warn("申込状況更新対象が見つかりません: コースID={}", form.getCourseId());
+          }
+        }
       }
 
       logger.info("学生更新完了: 対象ID={}", form.getId());
@@ -192,6 +218,35 @@ public class StudentService {
     } catch (Exception e) {
       logger.error("学生削除でシステムエラーが発生: ID={}", id, e);
       throw new RuntimeException("学生の削除に失敗しました", e);
+    }
+  }
+
+  /**
+   * 検索条件に基づいて学生を検索
+   *
+   * @param name             名前（部分一致、nullまたは空文字の場合は条件に含めない）
+   * @param area             地域（部分一致、nullまたは空文字の場合は条件に含めない）
+   * @param courseName       コース名（完全一致、nullまたは空文字の場合は条件に含めない）
+   * @param enrollmentStatus 申込状況（完全一致、nullまたは空文字の場合は条件に含めない）
+   * @return 検索結果の学生詳細リスト
+   */
+  @Transactional(readOnly = true)
+  public List<StudentDetail> searchStudents(String name, String area,
+      String courseName, String enrollmentStatus) {
+    logger.info("学生検索開始: name={}, area={}, courseName={}, status={}",
+        name, area, courseName, enrollmentStatus);
+
+    try {
+      List<Student> students = repository.searchStudents(name, area, courseName, enrollmentStatus);
+      List<StudentCourse> courses = repository.getAllCourses();
+      List<StudentDetail> studentDetails = converter.toDetails(students, courses);
+
+      logger.info("学生検索完了: {}件", studentDetails.size());
+      return studentDetails;
+
+    } catch (Exception e) {
+      logger.error("学生検索でエラーが発生", e);
+      throw new RuntimeException("学生検索に失敗しました", e);
     }
   }
 }

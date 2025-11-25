@@ -77,6 +77,18 @@
   </div>
 
   <div>
+    <label>申込状況*</label><br>
+    <select th:field="*{enrollmentStatus}" required>
+      <option value="">選択してください</option>
+      <option value="仮申込">仮申込</option>
+      <option value="本申込">本申込</option>
+      <option value="受講中">受講中</option>
+      <option value="受講終了">受講終了</option>
+    </select>
+    <div th:if="${#fields.hasErrors('enrollmentStatus')}" th:errors="*{enrollmentStatus}"></div>
+  </div>
+
+  <div>
     <label>備考</label><br>
     <textarea th:field="*{remark}" rows="3"></textarea>
   </div>
