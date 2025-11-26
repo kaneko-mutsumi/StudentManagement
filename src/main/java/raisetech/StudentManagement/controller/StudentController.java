@@ -39,11 +39,13 @@ public class StudentController {
 
   private static final Logger logger = LoggerFactory.getLogger(StudentController.class);
 
-  @Autowired
-  private StudentService service;
+  private final StudentService service;
+  private final StudentConverter converter;
 
-  @Autowired
-  private StudentConverter converter;
+  public StudentController(StudentService service, StudentConverter converter) {
+    this.service = service;
+    this.converter = converter;
+  }
 
   /**
    * 学生一覧表示
@@ -153,3 +155,4 @@ public class StudentController {
     return ResponseEntity.ok(response);
   }
 }
+

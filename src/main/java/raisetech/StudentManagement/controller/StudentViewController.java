@@ -29,11 +29,13 @@ public class StudentViewController {
 
   private static final Logger logger = LoggerFactory.getLogger(StudentViewController.class);
 
-  @Autowired
-  private StudentService service;
+  private final StudentService service;
+  private final StudentConverter converter;
 
-  @Autowired
-  private StudentConverter converter;
+  public StudentViewController(StudentService service, StudentConverter converter) {
+    this.service = service;
+    this.converter = converter;
+  }
 
   /**
    * 学生一覧表示
@@ -152,5 +154,59 @@ public class StudentViewController {
     }
 
     return "redirect:/studentList";
+  }
+
+  /**
+   * 学生検索
+   * @param name 名前（部分一致）
+   * @param area 地域（部分一致）
+   * @param courseName コース名（完全一致）
+   * @param enrollmentStatus 申込状況（完全一致）
+   * @param model ビューに渡すデータ
+   * @return 学生一覧画面
+   */
+  @GetMapping("/students/search")
+  public String searchStudents(
+      @RequestParam(required = false) String name,
+      @RequestParam(required = false) String area,
+      @RequestParam(required = false) String courseName,
+      @RequestParam(required = false) String enrollmentStatus,
+      Model model) {
+
+    logger.info("学生検索リクエスト: name={}, area={}, courseName={}, status={}",
+        name, area, courseName, enrollmentStatus);
+
+    try {
+      // 全て空の場合は全件表示
+      List<StudentDetail> studentDetails;
+      if ((name == null || name.isEmpty()) &&
+          (area == null || area.isEmpty()) &&
+          (courseName == null || courseName.isEmpty()) &&
+          (enrollmentStatus == null || enrollmentStatus.isEmpty())) {
+
+        logger.info("検索条件なし - 全件表示");
+        List<Student> students = service.getStudents();
+        List<StudentCourse> courses = service.getCourses();
+        studentDetails = converter.toDetails(students, courses);
+      } else {
+        logger.info("検索条件あり - 絞り込み検索");
+        studentDetails = service.searchStudents(name, area, courseName, enrollmentStatus);
+      }
+
+      model.addAttribute("studentList", studentDetails);
+      model.addAttribute("searchName", name);
+      model.addAttribute("searchArea", area);
+      model.addAttribute("searchCourseName", courseName);
+      model.addAttribute("searchEnrollmentStatus", enrollmentStatus);
+
+      logger.info("検索結果: {}件", studentDetails.size());
+
+      return "studentList";
+
+    } catch (Exception e) {
+      logger.error("学生検索でエラー発生", e);
+      model.addAttribute("errorMessage", "検索に失敗しました: " + e.getMessage());
+      return "studentList";
+    }
   }
 }

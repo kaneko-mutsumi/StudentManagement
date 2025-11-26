@@ -6,6 +6,55 @@
 <body>
 <h1>学生一覧</h1>
 
+<div style="background-color: #f5f5f5; padding: 20px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #ddd;">
+  <h3 style="margin-top: 0;">🔍 検索条件</h3>
+  <form th:action="@{/students/search}" method="get">
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px;">
+      <div>
+        <label style="font-weight: bold; display: block; margin-bottom: 5px;">名前:</label>
+        <input type="text" name="name" th:value="${searchName}"
+               placeholder="部分一致で検索"
+               style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+      </div>
+      <div>
+        <label style="font-weight: bold; display: block; margin-bottom: 5px;">地域:</label>
+        <input type="text" name="area" th:value="${searchArea}"
+               placeholder="部分一致で検索"
+               style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+      </div>
+      <div>
+        <label style="font-weight: bold; display: block; margin-bottom: 5px;">コース名:</label>
+        <select name="courseName" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+          <option value="">全て</option>
+          <option value="Java入門" th:selected="${searchCourseName == 'Java入門'}">Java入門</option>
+          <option value="Spring実践" th:selected="${searchCourseName == 'Spring実践'}">Spring実践</option>
+          <option value="Webアプリ開発" th:selected="${searchCourseName == 'Webアプリ開発'}">Webアプリ開発</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-weight: bold; display: block; margin-bottom: 5px;">申込状況:</label>
+        <select name="enrollmentStatus" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+          <option value="">全て</option>
+          <option value="仮申込" th:selected="${searchEnrollmentStatus == '仮申込'}">仮申込</option>
+          <option value="本申込" th:selected="${searchEnrollmentStatus == '本申込'}">本申込</option>
+          <option value="受講中" th:selected="${searchEnrollmentStatus == '受講中'}">受講中</option>
+          <option value="受講終了" th:selected="${searchEnrollmentStatus == '受講終了'}">受講終了</option>
+        </select>
+      </div>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <button type="submit"
+              style="padding: 10px 30px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+        検索
+      </button>
+      <a href="/studentList"
+         style="padding: 10px 30px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;">
+        クリア
+      </a>
+    </div>
+  </form>
+</div>
+
 <!-- フラッシュメッセージ統一表示領域 -->
 <div th:if="${successMessage}" th:text="${successMessage}"></div>
 <div th:if="${errorMessage}" th:text="${errorMessage}"></div>
@@ -44,7 +93,8 @@
         <div th:if="${studentDetail.hasCourses()}">
           <div th:each="course : ${studentDetail.StudentCourse}">
             <strong th:text="${course.courseName}">Java入門</strong><br>
-            <span th:text="${#temporals.format(course.courseStartAt, 'yyyy/MM/dd')}">2024/04/01</span>
+            <span
+                th:text="${#temporals.format(course.courseStartAt, 'yyyy/MM/dd')}">2024/04/01</span>
             ～
             <span th:text="${#temporals.format(course.courseEndAt, 'yyyy/MM/dd')}">2024/07/01</span>
             <br>
