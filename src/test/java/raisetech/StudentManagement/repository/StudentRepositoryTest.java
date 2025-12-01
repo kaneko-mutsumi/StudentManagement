@@ -2,6 +2,7 @@ package raisetech.StudentManagement.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import raisetech.StudentManagement.data.EnrollmentStatus;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
 
@@ -38,6 +40,7 @@ class StudentRepositoryTest {
   private static final String COURSE_NAME_SPRING = "Spring実践";
   private static final String COURSE_NAME_WEBAPP = "Webアプリ開発";
   private static final String COURSE_NAME_JAVA_ADVANCED = "Java応用";
+  private OpenAPIDefinition logger;
 
   // ============ ヘルパーメソッド ============
 
@@ -280,5 +283,32 @@ class StudentRepositoryTest {
 
     assertNotNull(courses, "nullではなく空リストが返るはず");
     assertEquals(0, courses.size(), "コースを持たない学生は0件のはず");
+  }
+
+  @Test
+  @DisplayName("getAllCoursesでenrollmentStatusが正しくマッピングされること")
+  void getAllCoursesでenrollmentStatusが正しくマッピングされること() {
+    List<StudentCourse> courses = repository.getAllCourses();
+
+    assertFalse(courses.isEmpty(), "コースが取得できること");
+
+    // enrollmentStatusが存在するコースを取得
+    StudentCourse courseWithStatus = courses.stream()
+        .filter(c -> c.getEnrollmentStatus() != null)
+        .findFirst()
+        .orElseThrow(() -> new AssertionError("申込状況付きコースが見つかりません"));
+
+    // 全フィールドが正しく設定されているか確認
+    EnrollmentStatus status = courseWithStatus.getEnrollmentStatus();
+    assertNotNull(status.getId(), "enrollmentStatus.idが設定されていること");
+    assertNotNull(status.getCourseId(), "enrollmentStatus.courseIdが設定されていること");
+    assertNotNull(status.getStatus(), "enrollmentStatus.statusが設定されていること");
+
+    // courseIdとcourseのidが一致すること
+    assertEquals(courseWithStatus.getId(), status.getCourseId(),
+        "courseIdが正しく紐づいていること");
+
+    logger.info("マッピング確認: course.id={}, enrollmentStatus={}",
+        courseWithStatus.getId(), status);
   }
 }

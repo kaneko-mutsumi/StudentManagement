@@ -20,33 +20,49 @@
     AND (deleted IS NULL OR deleted = 0)
   </select>
 
-  <!-- 全コース情報を取得（申込状況も結合） -->
-  <select id="getAllCourses" resultType="raisetech.StudentManagement.data.StudentCourse">
+  <!-- resultMapの定義 -->
+  <resultMap id="StudentCourseResultMap" type="raisetech.StudentManagement.data.StudentCourse">
+    <id property="id" column="course_id"/>
+    <result property="studentId" column="student_id"/>
+    <result property="courseName" column="course_name"/>
+    <result property="courseStartAt" column="course_start_at"/>
+    <result property="courseEndAt" column="course_end_at"/>
+
+    <!-- ネストオブジェクトのマッピング -->
+    <association property="enrollmentStatus" javaType="raisetech.StudentManagement.data.EnrollmentStatus">
+      <id property="id" column="enrollment_status_id"/>
+      <result property="courseId" column="course_id"/>
+      <result property="status" column="enrollment_status"/>
+    </association>
+  </resultMap>
+
+  <!-- 全コース情報を取得 -->
+  <select id="getAllCourses" resultMap="StudentCourseResultMap">
     SELECT
-    sc.id,
-    sc.student_id as studentId,
-    sc.course_name as courseName,
-    sc.course_start_at as courseStartAt,
-    sc.course_end_at as courseEndAt,
-    es.id as "enrollmentStatus.id",
-    es.course_id as "enrollmentStatus.courseId",
-    es.status as "enrollmentStatus.status"
+    sc.id as course_id,
+    sc.student_id as student_id,
+    sc.course_name as course_name,
+    sc.course_start_at as course_start_at,
+    sc.course_end_at as course_end_at,
+    es.id as enrollment_status_id,
+    es.course_id as enrollment_course_id,
+    es.status as enrollment_status
     FROM students_courses sc
     LEFT JOIN enrollment_status es ON sc.id = es.course_id
     ORDER BY sc.student_id, sc.id
   </select>
 
-  <!-- 特定学生のコース情報を取得（申込状況も結合） -->
-  <select id="getCoursesByStudentId" resultType="raisetech.StudentManagement.data.StudentCourse">
+  <!-- 特定学生のコース情報を取得 -->
+  <select id="getCoursesByStudentId" resultMap="StudentCourseResultMap">
     SELECT
-    sc.id,
-    sc.student_id as studentId,
-    sc.course_name as courseName,
-    sc.course_start_at as courseStartAt,
-    sc.course_end_at as courseEndAt,
-    es.id as "enrollmentStatus.id",
-    es.course_id as "enrollmentStatus.courseId",
-    es.status as "enrollmentStatus.status"
+    sc.id as course_id,
+    sc.student_id as student_id,
+    sc.course_name as course_name,
+    sc.course_start_at as course_start_at,
+    sc.course_end_at as course_end_at,
+    es.id as enrollment_status_id,
+    es.course_id as enrollment_course_id,
+    es.status as enrollment_status
     FROM students_courses sc
     LEFT JOIN enrollment_status es ON sc.id = es.course_id
     WHERE sc.student_id = #{studentId}
