@@ -2,7 +2,6 @@ package raisetech.StudentManagement.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -40,7 +39,6 @@ class StudentRepositoryTest {
   private static final String COURSE_NAME_SPRING = "Spring実践";
   private static final String COURSE_NAME_WEBAPP = "Webアプリ開発";
   private static final String COURSE_NAME_JAVA_ADVANCED = "Java応用";
-  private OpenAPIDefinition logger;
 
   // ============ ヘルパーメソッド ============
 
@@ -308,7 +306,5 @@ class StudentRepositoryTest {
     assertEquals(courseWithStatus.getId(), status.getCourseId(),
         "courseIdが正しく紐づいていること");
 
-    logger.info("マッピング確認: course.id={}, enrollmentStatus={}",
-        courseWithStatus.getId(), status);
   }
 }
