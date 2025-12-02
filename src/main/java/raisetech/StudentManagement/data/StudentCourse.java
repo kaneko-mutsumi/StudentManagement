@@ -10,6 +10,7 @@ public class StudentCourse {
 
   private Integer id;
   private int studentId;
+  private String studentName;
   private String courseName;
   private LocalDate courseStartAt;
   private LocalDate courseEndAt;
