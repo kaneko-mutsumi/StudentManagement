@@ -16,7 +16,11 @@ import raisetech.StudentManagement.form.StudentForm;
 import raisetech.StudentManagement.repository.StudentRepository;
 
 /**
- * 学生管理サービスクラス（REST API対応版）
+ * 学生管理サービスクラス(REST API対応版)
+ *
+ * <p>学生情報とコース情報の登録・更新・削除・検索を行います。</p>
+ * <p>全てのデータ更新処理は@Transactionalにより、エラー時に自動ロールバックされます。</p>
+ * <p>削除処理は論理削除(deleted=1)を使用し、物理削除は行いません。</p>
  */
 @Service
 @Transactional

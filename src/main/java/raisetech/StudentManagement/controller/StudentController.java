@@ -29,7 +29,12 @@ import raisetech.StudentManagement.response.StudentApiResponse;
 import raisetech.StudentManagement.service.StudentService;
 
 /**
- * 学生管理コントローラー
+ * 学生管理REST APIコントローラー
+ *
+ * <p>学生情報とコース情報のCRUD操作をREST APIとして提供します。</p>
+ * <p>全てのエラーはGlobalExceptionHandlerで統一的に処理されます。</p>
+ *
+ * @see raisetech.StudentManagement.controller.handler.GlobalExceptionHandler
  */
 @RestController
 @RequestMapping("/api")
@@ -48,7 +53,12 @@ public class StudentController {
   }
 
   /**
-   * 学生一覧表示
+   * 学生一覧取得API
+   *
+   * <p>有効な学生の一覧とそれぞれのコース情報を取得します。</p>
+   * <p>論理削除された学生は含まれません。</p>
+   *
+   * @return 学生詳細のリスト
    */
   @Operation(summary = "学生一覧取得", description = "有効な学生の一覧とそれぞれのコース情報を取得します")
   @ApiResponses(value = {
@@ -138,7 +148,13 @@ public class StudentController {
   }
 
   /**
-   * 学生削除処理
+   * 学生削除API(論理削除)
+   *
+   * <p>指定されたIDの学生を論理削除します。</p>
+   * <p>deletedフラグを1に設定し、物理削除は行いません。</p>
+   *
+   * @param id 削除対象の学生ID
+   * @return 削除結果メッセージ
    */
   @Operation(summary = "学生削除", description = "指定されたIDの学生を論理削除します")
   @ApiResponses(value = {

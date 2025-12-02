@@ -4,16 +4,18 @@
 
 <mapper namespace="raisetech.StudentManagement.repository.StudentRepository">
 
-  <!-- 有効な学生一覧を取得 -->
+  <!-- 有効な学生一覧を取得(論理削除されていない学生のみ) -->
   <select id="getActiveStudents" resultType="raisetech.StudentManagement.data.Student">
+    -- deleted=0またはNULLの学生を取得(論理削除済みを除外)
     SELECT id, name, kanaName, nickname, email, area, age, sex, remark, deleted
     FROM students
     WHERE deleted IS NULL OR deleted = 0
     ORDER BY id
   </select>
 
-  <!-- 学生idで学生情報を取得（削除済みは除外） -->
+  <!-- 学生IDで学生情報を取得(削除済みは除外) -->
   <select id="getStudentById" resultType="raisetech.StudentManagement.data.Student">
+    -- 指定されたIDの学生を取得(論理削除済みは除外)
     SELECT id, name, kanaName, nickname, email, area, age, sex, remark, deleted
     FROM students
     WHERE id = #{id}
@@ -99,8 +101,9 @@
     WHERE id = #{id}
   </update>
 
-  <!-- 学生を論理削除 -->
+  <!-- 学生を論理削除(deleted=1に更新、物理削除は行わない) -->
   <update id="deleteStudent">
+    -- 論理削除: deletedフラグを1に設定
     UPDATE students SET deleted = 1 WHERE id = #{id}
   </update>
 
