@@ -27,7 +27,7 @@ jobs:
         run: ./gradlew build
       - name: Upload jar file
         if: success()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: app-jar
           path: build/libs/*.jar
@@ -39,7 +39,7 @@ jobs:
 
     steps:
       - name: Download jar file
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: app-jar
       - name: Deploy to EC2
