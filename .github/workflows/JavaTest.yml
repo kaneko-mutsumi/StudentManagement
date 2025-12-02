@@ -1,10 +1,14 @@
-name: Java CI with Gradle
+name: Java CI/CD with Gradle
 
 on:
   push:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
+
+env:
+  EC2_HOST: ${{ secrets.EC2_HOST }}
+  EC2_USER: ${{ secrets.EC2_USER }}
 
 jobs:
   build:
@@ -21,5 +25,38 @@ jobs:
         run: chmod +x gradlew
       - name: Build with Gradle Wrapper
         run: ./gradlew build
-        env:
-          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
+      - name: Upload jar file
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: build/libs/*.jar
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+
+    steps:
+      - name: Download jar file
+        uses: actions/download-artifact@v4
+        with:
+          name: app-jar
+      - name: Deploy to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "*.jar"
+          target: "/home/ec2-user/studentmanagement"
+      - name: Restart application on EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ec2-user/studentmanagement
+            pkill -f StudentManagement || true
+            nohup java -jar *.jar > app.log 2>&1 &
