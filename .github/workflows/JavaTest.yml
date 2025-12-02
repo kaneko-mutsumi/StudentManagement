@@ -45,6 +45,6 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/ec2-user/studentmanagement
+            cd /home/ec2-user/studentmanagement/libs
             pkill -f StudentManagement || true
-            nohup java -jar *.jar > app.log 2>&1 &
+            nohup java -jar StudentManagementKadai29-0.0.1-SNAPSHOT.war > app.log 2>&1 &
