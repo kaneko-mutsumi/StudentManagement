@@ -27,6 +27,7 @@ import raisetech.StudentManagement.domain.StudentDetail;
 import raisetech.StudentManagement.form.StudentForm;
 import raisetech.StudentManagement.response.StudentApiResponse;
 import raisetech.StudentManagement.service.StudentService;
+import raisetech.StudentManagement.response.StudentListResponse;
 
 /**
  * 学生管理REST APIコントローラー
@@ -66,15 +67,21 @@ public class StudentController {
       @ApiResponse(responseCode = "500", description = "サーバーエラー")
   })
   @GetMapping("/students")
-  public ResponseEntity<List<StudentDetail>> getStudents() {
+  public ResponseEntity<StudentListResponse> getStudents() {
     logger.info("学生一覧画面アクセス");
 
     List<Student> students = service.getStudents();
     List<StudentCourse> courses = service.getCourses();
     List<StudentDetail> studentDetails = converter.toDetails(students, courses);
 
+    StudentListResponse response = new StudentListResponse(
+        "success",
+        studentDetails.size(),
+        studentDetails
+    );
+
     logger.info("REST API: 学生一覧表示完了: {}件", studentDetails.size());
-    return ResponseEntity.ok(studentDetails);
+    return ResponseEntity.ok(response);
   }
 
   /**
