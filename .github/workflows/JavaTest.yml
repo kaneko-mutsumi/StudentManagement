@@ -46,5 +46,8 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ec2-user/studentmanagement/libs
-            pkill -f StudentManagement || true
+            pkill -9 -f StudentManagement || true
+            sleep 3
             nohup java -jar StudentManagementKadai29-0.0.1-SNAPSHOT.war > app.log 2>&1 &
+            sleep 2
+            echo "Application restart completed"
