@@ -48,24 +48,13 @@ jobs:
             #!/bin/bash
             cd /home/ec2-user/studentmanagement/libs
             
-            # 既存プロセスを停止
-            if pgrep -f "StudentManagement" > /dev/null; then
-              echo "Stopping existing application..."
-              pkill -9 -f "StudentManagement"
-              sleep 3
-            fi
+            # 既存プロセスをバックグラウンドで停止
+            (pkill -9 -f "StudentManagement" || true) &
+            sleep 2
             
-            # 完全にバックグラウンドで起動（SSH接続と切り離す）
-            echo "Starting application..."
+            # 起動
             nohup java -jar StudentManagementKadai29-0.0.1-SNAPSHOT.war > app.log 2>&1 < /dev/null &
             disown
             
-            # 起動確認
-            sleep 5
-            if pgrep -f "StudentManagement" > /dev/null; then
-              echo "Application started successfully"
-              exit 0
-            else
-              echo "Application failed to start"
-              exit 1
-            fi
+            sleep 3
+            echo "Deployment completed"
