@@ -44,11 +44,28 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          command_timeout: 30m
           script: |
+            #!/bin/bash
             cd /home/ec2-user/studentmanagement/libs
-            pkill -9 -f StudentManagement || true
-            sleep 3
-            nohup java -jar StudentManagementKadai29-0.0.1-SNAPSHOT.war > app.log 2>&1 &
-            sleep 2
-            echo "Application restart completed"
+            
+            # 既存プロセスを停止
+            if pgrep -f "StudentManagement" > /dev/null; then
+              echo "Stopping existing application..."
+              pkill -9 -f "StudentManagement"
+              sleep 3
+            fi
+            
+            # 完全にバックグラウンドで起動（SSH接続と切り離す）
+            echo "Starting application..."
+            nohup java -jar StudentManagementKadai29-0.0.1-SNAPSHOT.war > app.log 2>&1 < /dev/null &
+            disown
+            
+            # 起動確認
+            sleep 5
+            if pgrep -f "StudentManagement" > /dev/null; then
+              echo "Application started successfully"
+              exit 0
+            else
+              echo "Application failed to start"
+              exit 1
+            fi
