@@ -45,16 +45,5 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            #!/bin/bash
-            cd /home/ec2-user/studentmanagement/libs
-            
-            # 既存プロセスをバックグラウンドで停止
-            (pkill -9 -f "StudentManagement" || true) &
-            sleep 2
-            
-            # 起動
-            nohup java -jar StudentManagementKadai29-0.0.1-SNAPSHOT.war > app.log 2>&1 < /dev/null &
-            disown
-            
-            sleep 3
-            echo "Deployment completed"
+            nohup /home/ec2-user/studentmanagement/restart.sh > /dev/null 2>&1 &
+            echo "Restart script triggered"
