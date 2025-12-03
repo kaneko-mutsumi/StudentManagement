@@ -27,9 +27,15 @@ import raisetech.StudentManagement.domain.StudentDetail;
 import raisetech.StudentManagement.form.StudentForm;
 import raisetech.StudentManagement.response.StudentApiResponse;
 import raisetech.StudentManagement.service.StudentService;
+import raisetech.StudentManagement.response.StudentListResponse;
 
 /**
- * 学生管理コントローラー
+ * 学生管理REST APIコントローラー
+ *
+ * <p>学生情報とコース情報のCRUD操作をREST APIとして提供します。</p>
+ * <p>全てのエラーはGlobalExceptionHandlerで統一的に処理されます。</p>
+ *
+ * @see raisetech.StudentManagement.controller.handler.GlobalExceptionHandler
  */
 @RestController
 @RequestMapping("/api")
@@ -48,7 +54,12 @@ public class StudentController {
   }
 
   /**
-   * 学生一覧表示
+   * 学生一覧取得API
+   *
+   * <p>有効な学生の一覧とそれぞれのコース情報を取得します。</p>
+   * <p>論理削除された学生は含まれません。</p>
+   *
+   * @return 学生詳細のリスト
    */
   @Operation(summary = "学生一覧取得", description = "有効な学生の一覧とそれぞれのコース情報を取得します")
   @ApiResponses(value = {
@@ -56,15 +67,21 @@ public class StudentController {
       @ApiResponse(responseCode = "500", description = "サーバーエラー")
   })
   @GetMapping("/students")
-  public ResponseEntity<List<StudentDetail>> getStudents() {
+  public ResponseEntity<StudentListResponse> getStudents() {
     logger.info("学生一覧画面アクセス");
 
     List<Student> students = service.getStudents();
     List<StudentCourse> courses = service.getCourses();
     List<StudentDetail> studentDetails = converter.toDetails(students, courses);
 
+    StudentListResponse response = new StudentListResponse(
+        "success",
+        studentDetails.size(),
+        studentDetails
+    );
+
     logger.info("REST API: 学生一覧表示完了: {}件", studentDetails.size());
-    return ResponseEntity.ok(studentDetails);
+    return ResponseEntity.ok(response);
   }
 
   /**
@@ -138,7 +155,13 @@ public class StudentController {
   }
 
   /**
-   * 学生削除処理
+   * 学生削除API(論理削除)
+   *
+   * <p>指定されたIDの学生を論理削除します。</p>
+   * <p>deletedフラグを1に設定し、物理削除は行いません。</p>
+   *
+   * @param id 削除対象の学生ID
+   * @return 削除結果メッセージ
    */
   @Operation(summary = "学生削除", description = "指定されたIDの学生を論理削除します")
   @ApiResponses(value = {

@@ -37,13 +37,16 @@ class StudentControllerTest {
     // 準備: 空のリストを返すように設定
     when(service.getStudents()).thenReturn(new ArrayList<>());
     when(service.getCourses()).thenReturn(new ArrayList<>());
-    when(converter.toDetails(anyList(), anyList()))  // 任意のリストでマッチ
+    when(converter.toDetails(anyList(), anyList()))
         .thenReturn(new ArrayList<>());
 
     // 実行と検証
     mockMvc.perform(get("/api/students"))
-        .andExpect(status().isOk())  // 200が返ってくるか
-        .andExpect(content().json("[]"));  // 空の配列[]が返ってくるか
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("success"))
+        .andExpect(jsonPath("$.count").value(0))
+        .andExpect(jsonPath("$.students").isArray())
+        .andExpect(jsonPath("$.students").isEmpty());
   }
 
   // ========== ②異常系テスト(入力チェック) ==========

@@ -8,20 +8,26 @@ import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
 
 /**
- * 学生データベース操作
+ * 学生データベース操作リポジトリ
+ *
+ * <p>学生情報とコース情報のCRUD操作を提供します。</p>
+ * <p>削除は論理削除(deleted=1)で実装されています。</p>
  */
 @Mapper
 public interface StudentRepository {
 
   /**
-   * 有効な学生一覧を取得（論理削除されていない学生のみ）
-   * SQLはStudentRepository.xmlに定義
+   * 有効な学生一覧を取得(deleted=0またはNULLの学生のみ)
+   *
+   * @return 有効な学生のリスト
    */
   List<Student> getActiveStudents();
 
   /**
-   * 学生IDで学生情報を取得
-   * SQLはStudentRepository.xmlに定義
+   * 学生IDで学生情報を取得(論理削除済みは除外)
+   *
+   * @param id 学生ID
+   * @return 学生情報、存在しない場合はnull
    */
   Student getStudentById(int id);
 

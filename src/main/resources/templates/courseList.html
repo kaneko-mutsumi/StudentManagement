@@ -14,6 +14,7 @@
   <tr>
     <th>コースID</th>
     <th>受講生ID</th>
+    <th>受講生名</th>
     <th>コース名</th>
     <th>開始日</th>
     <th>終了日</th>
@@ -23,6 +24,7 @@
   <tr th:each="course : ${courseList}">
     <td th:text="${course.id}">1</td>
     <td th:text="${course.studentId}">1</td>
+    <td th:text="${course.studentName}">テスト太郎</td>
     <td th:text="${course.courseName}">Java入門</td>
     <td th:text="${#temporals.format(course.courseStartAt, 'yyyy/MM/dd')}">2024/04/01</td>
     <td th:text="${#temporals.format(course.courseEndAt, 'yyyy/MM/dd')}">2024/07/01</td>

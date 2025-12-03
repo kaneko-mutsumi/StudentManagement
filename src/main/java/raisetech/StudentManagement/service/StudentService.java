@@ -1,5 +1,6 @@
 package raisetech.StudentManagement.service;
 
+import static raisetech.StudentManagement.constants.DatabaseConstants.EXPECTED_UPDATE_COUNT;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +17,11 @@ import raisetech.StudentManagement.form.StudentForm;
 import raisetech.StudentManagement.repository.StudentRepository;
 
 /**
- * 学生管理サービスクラス（REST API対応版）
+ * 学生管理サービスクラス(REST API対応版)
+ *
+ * <p>学生情報とコース情報の登録・更新・削除・検索を行います。</p>
+ * <p>全てのデータ更新処理は@Transactionalにより、エラー時に自動ロールバックされます。</p>
+ * <p>削除処理は論理削除(deleted=1)を使用し、物理削除は行いません。</p>
  */
 @Service
 @Transactional
@@ -109,8 +114,8 @@ public class StudentService {
       Student student = converter.toStudent(form);
       int studentRows = repository.saveStudent(student);
 
-      if (studentRows != 1) {
-        logger.error("学生登録で予期しない更新件数: 期待=1, 実際={}", studentRows);
+      if (studentRows != EXPECTED_UPDATE_COUNT) {
+        logger.error("学生登録で予期しない更新件数: 期待={}, 実際={}", EXPECTED_UPDATE_COUNT, studentRows);
         throw new RuntimeException("学生登録に失敗しました");
       }
 
@@ -118,8 +123,8 @@ public class StudentService {
       course.setStudentId(student.getId());
       int courseRows = repository.saveCourse(course);
 
-      if (courseRows != 1) {
-        logger.error("コース登録で予期しない更新件数: 期待=1, 実際={}", courseRows);
+      if (courseRows != EXPECTED_UPDATE_COUNT) {
+        logger.error("コース登録で予期しない更新件数: 期待={}, 実際={}", EXPECTED_UPDATE_COUNT, courseRows);
         throw new RuntimeException("学生登録に失敗しました");
       }
 
@@ -133,8 +138,8 @@ public class StudentService {
       );
       int statusRows = repository.saveEnrollmentStatus(enrollmentStatus);
 
-      if (statusRows != 1) {
-        logger.error("申込状況登録で予期しない更新件数: 期待=1, 実際={}", statusRows);
+      if (statusRows != EXPECTED_UPDATE_COUNT) {
+        logger.error("申込状況登録で予期しない更新件数: 期待={}, 実際={}", EXPECTED_UPDATE_COUNT, statusRows);
         throw new RuntimeException("学生登録に失敗しました");
       }
 
@@ -158,7 +163,7 @@ public class StudentService {
       Student student = converter.toStudent(form);
       int studentRows = repository.updateStudent(student);
 
-      if (studentRows != 1) {
+      if (studentRows != EXPECTED_UPDATE_COUNT) {
         logger.warn("学生更新対象が見つかりません: ID={}", form.getId());
         throw new ResourceNotFoundException("学生が見つかりません: ID=" + form.getId());
       }
@@ -174,7 +179,7 @@ public class StudentService {
         int courseRows = repository.updateCourse(course);
         logger.info("コース更新結果: {}件", courseRows);
 
-        if (courseRows != 1) {
+        if (courseRows != EXPECTED_UPDATE_COUNT) {
           logger.warn("コース更新対象が見つかりません: コースID={}", form.getCourseId());
         }
 
@@ -184,7 +189,7 @@ public class StudentService {
           status.setStatus(form.getEnrollmentStatus());
           int statusRows = repository.updateEnrollmentStatus(status);
 
-          if (statusRows != 1) {
+          if (statusRows != EXPECTED_UPDATE_COUNT) {
             logger.warn("申込状況更新対象が見つかりません: コースID={}", form.getCourseId());
           }
         }
@@ -206,7 +211,7 @@ public class StudentService {
     try {
       int rows = repository.deleteStudent(id);
 
-      if (rows != 1) {
+      if (rows != EXPECTED_UPDATE_COUNT) {
         logger.warn("削除対象の学生が見つかりません: ID={}", id);
         throw new ResourceNotFoundException("学生が見つかりません: ID=" + id);
       }

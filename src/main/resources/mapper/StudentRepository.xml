@@ -4,16 +4,18 @@
 
 <mapper namespace="raisetech.StudentManagement.repository.StudentRepository">
 
-  <!-- 有効な学生一覧を取得 -->
+  <!-- 有効な学生一覧を取得(論理削除されていない学生のみ) -->
   <select id="getActiveStudents" resultType="raisetech.StudentManagement.data.Student">
+    -- deleted=0またはNULLの学生を取得(論理削除済みを除外)
     SELECT id, name, kanaName, nickname, email, area, age, sex, remark, deleted
     FROM students
     WHERE deleted IS NULL OR deleted = 0
     ORDER BY id
   </select>
 
-  <!-- 学生idで学生情報を取得（削除済みは除外） -->
+  <!-- 学生IDで学生情報を取得(削除済みは除外) -->
   <select id="getStudentById" resultType="raisetech.StudentManagement.data.Student">
+    -- 指定されたIDの学生を取得(論理削除済みは除外)
     SELECT id, name, kanaName, nickname, email, area, age, sex, remark, deleted
     FROM students
     WHERE id = #{id}
@@ -24,6 +26,7 @@
   <resultMap id="StudentCourseResultMap" type="raisetech.StudentManagement.data.StudentCourse">
     <id property="id" column="course_id"/>
     <result property="studentId" column="student_id"/>
+    <result property="studentName" column="student_name"/>
     <result property="courseName" column="course_name"/>
     <result property="courseStartAt" column="course_start_at"/>
     <result property="courseEndAt" column="course_end_at"/>
@@ -36,18 +39,21 @@
     </association>
   </resultMap>
 
-  <!-- 全コース情報を取得 -->
+  <!-- 全コース情報を取得(受講生名を含む) -->
   <select id="getAllCourses" resultMap="StudentCourseResultMap">
+    -- 受講生名を含むコース一覧を取得
     SELECT
     sc.id as course_id,
     sc.student_id as student_id,
     sc.course_name as course_name,
     sc.course_start_at as course_start_at,
     sc.course_end_at as course_end_at,
+    s.name as student_name,
     es.id as enrollment_status_id,
     es.course_id as enrollment_course_id,
     es.status as enrollment_status
     FROM students_courses sc
+    LEFT JOIN students s ON sc.student_id = s.id
     LEFT JOIN enrollment_status es ON sc.id = es.course_id
     ORDER BY sc.student_id, sc.id
   </select>
@@ -99,26 +105,30 @@
     WHERE id = #{id}
   </update>
 
-  <!-- 学生を論理削除 -->
+  <!-- 学生を論理削除(deleted=1に更新、物理削除は行わない) -->
   <update id="deleteStudent">
+    -- 論理削除: deletedフラグを1に設定
     UPDATE students SET deleted = 1 WHERE id = #{id}
   </update>
 
   <!-- 申込状況を登録 -->
-  <insert id="saveEnrollmentStatus" parameterType="raisetech.StudentManagement.data.EnrollmentStatus">
+  <insert id="saveEnrollmentStatus"
+    parameterType="raisetech.StudentManagement.data.EnrollmentStatus">
     INSERT INTO enrollment_status(course_id, status)
     VALUES(#{courseId}, #{status})
   </insert>
 
   <!-- 申込状況を更新 -->
-  <update id="updateEnrollmentStatus" parameterType="raisetech.StudentManagement.data.EnrollmentStatus">
+  <update id="updateEnrollmentStatus"
+    parameterType="raisetech.StudentManagement.data.EnrollmentStatus">
     UPDATE enrollment_status
     SET status = #{status}
     WHERE course_id = #{courseId}
   </update>
 
   <!-- 申込状況を取得 -->
-  <select id="getEnrollmentStatusByCourseId" resultType="raisetech.StudentManagement.data.EnrollmentStatus">
+  <select id="getEnrollmentStatusByCourseId"
+    resultType="raisetech.StudentManagement.data.EnrollmentStatus">
     SELECT id, course_id as courseId, status
     FROM enrollment_status
     WHERE course_id = #{courseId}
@@ -126,7 +136,8 @@
 
   <!-- 学生検索（複数条件対応） -->
   <select id="searchStudents" resultType="raisetech.StudentManagement.data.Student">
-    SELECT DISTINCT s.id, s.name, s.kanaName, s.nickname, s.email, s.area, s.age, s.sex, s.remark, s.deleted
+    SELECT DISTINCT s.id, s.name, s.kanaName, s.nickname, s.email, s.area, s.age, s.sex, s.remark,
+    s.deleted
     FROM students s
     LEFT JOIN students_courses sc ON s.id = sc.student_id
     LEFT JOIN enrollment_status es ON sc.id = es.course_id

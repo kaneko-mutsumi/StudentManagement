@@ -1,5 +1,6 @@
 package raisetech.StudentManagement.controller;
 
+import static raisetech.StudentManagement.constants.ViewNames.*;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +50,7 @@ public class StudentViewController {
     List<StudentDetail> studentDetails = converter.toDetails(students, courses);
 
     model.addAttribute("studentList", studentDetails);
-    return "studentList";
-  }
+    return STUDENT_LIST;  }
 
   /**
    * コース一覧表示
@@ -61,8 +61,7 @@ public class StudentViewController {
 
     List<StudentCourse> courses = service.getCourses();
     model.addAttribute("courseList", courses);
-    return "courseList";
-  }
+    return COURSE_LIST;  }
 
   /**
    * 新規登録画面表示
@@ -71,7 +70,7 @@ public class StudentViewController {
   public String showNewStudentForm(Model model) {
     logger.info("新規登録画面表示");
     model.addAttribute("studentForm", new StudentForm());
-    return "newStudent";
+    return NEW_STUDENT;
   }
 
   /**
@@ -89,11 +88,11 @@ public class StudentViewController {
     try {
       service.registerStudent(form);
       redirectAttributes.addFlashAttribute("successMessage", "学生を登録しました");
-      return "redirect:/studentList";
+      return REDIRECT_STUDENT_LIST;
     } catch (Exception e) {
       logger.error("学生登録エラー", e);
       redirectAttributes.addFlashAttribute("errorMessage", "登録に失敗しました");
-      return "redirect:/newStudent";
+      return REDIRECT_NEW_STUDENT;
     }
   }
 
@@ -107,11 +106,11 @@ public class StudentViewController {
     try {
       StudentForm form = service.getStudentForm(id);
       model.addAttribute("studentForm", form);
-      return "editStudent";
+      return EDIT_STUDENT;
     } catch (Exception e) {
       logger.error("学生詳細取得エラー", e);
       redirectAttributes.addFlashAttribute("errorMessage", "学生が見つかりません");
-      return "redirect:/studentList";
+      return REDIRECT_STUDENT_LIST;
     }
   }
 
@@ -124,17 +123,17 @@ public class StudentViewController {
       RedirectAttributes redirectAttributes) {
 
     if (result.hasErrors()) {
-      return "editStudent";
+      return EDIT_STUDENT;
     }
 
     try {
       service.updateStudent(form);
       redirectAttributes.addFlashAttribute("successMessage", "学生情報を更新しました");
-      return "redirect:/studentList";
+      return REDIRECT_STUDENT_LIST;
     } catch (Exception e) {
       logger.error("学生更新エラー", e);
       redirectAttributes.addFlashAttribute("errorMessage", "更新に失敗しました");
-      return "redirect:/studentList";
+      return REDIRECT_STUDENT_LIST;
     }
   }
 
@@ -153,7 +152,7 @@ public class StudentViewController {
       redirectAttributes.addFlashAttribute("errorMessage", "削除に失敗しました");
     }
 
-    return "redirect:/studentList";
+    return REDIRECT_STUDENT_LIST;
   }
 
   /**
@@ -201,12 +200,12 @@ public class StudentViewController {
 
       logger.info("検索結果: {}件", studentDetails.size());
 
-      return "studentList";
+      return STUDENT_LIST;
 
     } catch (Exception e) {
       logger.error("学生検索でエラー発生", e);
       model.addAttribute("errorMessage", "検索に失敗しました: " + e.getMessage());
-      return "studentList";
+      return STUDENT_LIST;
     }
   }
 }
